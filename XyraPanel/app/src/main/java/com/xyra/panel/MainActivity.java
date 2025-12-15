@@ -15,7 +15,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -39,10 +39,7 @@ import android.os.Vibrator;
 import android.os.VibrationEffect;
 import android.net.Uri;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import com.google.android.material.navigation.NavigationView;
+import android.support.v4.widget.DrawerLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -61,7 +58,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-public class MainActivity extends Activity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
     private Button btnStartFlood;
@@ -74,7 +71,7 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
     private View btnFailureInfo;
     
     private DrawerLayout drawerLayout;
-    private NavigationView navigationView;
+    private LinearLayout navDrawer;
     private ImageButton btnMenu;
 
     private AccFloodTask currentTask;
@@ -342,37 +339,37 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        drawerLayout = findViewById(R.id.drawer_layout);
-        navigationView = findViewById(R.id.nav_view);
-        btnMenu = findViewById(R.id.btn_menu);
-        
-        navigationView.setNavigationItemSelectedListener(this);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        navDrawer = (LinearLayout) findViewById(R.id.nav_drawer);
+        btnMenu = (ImageButton) findViewById(R.id.btn_menu);
         
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-                    drawerLayout.closeDrawer(GravityCompat.START);
+                if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
                 } else {
-                    drawerLayout.openDrawer(GravityCompat.START);
+                    drawerLayout.openDrawer(Gravity.LEFT);
                 }
             }
         });
+        
+        setupNavigation();
 
-        etTargetPhone = findViewById(R.id.et_target_phone);
-        etJumlahKirim = findViewById(R.id.et_jumlah_kirim);
-        btnStartFlood = findViewById(R.id.btn_start_flood);
-        btnQuick1 = findViewById(R.id.btn_quick_1);
-        btnQuick3 = findViewById(R.id.btn_quick_3);
-        btnQuick5 = findViewById(R.id.btn_quick_5);
-        btnQuickRandom = findViewById(R.id.btn_quick_random);
-        btnSms = findViewById(R.id.btn_sms);
-        btnWhatsapp = findViewById(R.id.btn_whatsapp);
-        progressBar = findViewById(R.id.progress_bar);
-        tvStatusTitle = findViewById(R.id.tv_status_title);
-        tvStatSuccess = findViewById(R.id.tv_stat_success);
-        tvStatFailed = findViewById(R.id.tv_stat_failed);
-        tvStatAvg = findViewById(R.id.tv_stat_avg);
+        etTargetPhone = (EditText) findViewById(R.id.et_target_phone);
+        etJumlahKirim = (EditText) findViewById(R.id.et_jumlah_kirim);
+        btnStartFlood = (Button) findViewById(R.id.btn_start_flood);
+        btnQuick1 = (Button) findViewById(R.id.btn_quick_1);
+        btnQuick3 = (Button) findViewById(R.id.btn_quick_3);
+        btnQuick5 = (Button) findViewById(R.id.btn_quick_5);
+        btnQuickRandom = (Button) findViewById(R.id.btn_quick_random);
+        btnSms = (Button) findViewById(R.id.btn_sms);
+        btnWhatsapp = (Button) findViewById(R.id.btn_whatsapp);
+        progressBar = (ProgressBar) findViewById(R.id.progress_bar);
+        tvStatusTitle = (TextView) findViewById(R.id.tv_status_title);
+        tvStatSuccess = (TextView) findViewById(R.id.tv_stat_success);
+        tvStatFailed = (TextView) findViewById(R.id.tv_stat_failed);
+        tvStatAvg = (TextView) findViewById(R.id.tv_stat_avg);
         statusDot = findViewById(R.id.status_dot);
         btnFailureInfo = findViewById(R.id.btn_failure_info);
 
@@ -440,8 +437,8 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
             }
         });
 
-        btnHistory = findViewById(R.id.btn_history);
-        btnAbout = findViewById(R.id.btn_about);
+        btnHistory = (Button) findViewById(R.id.btn_history);
+        btnAbout = (Button) findViewById(R.id.btn_about);
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -466,24 +463,61 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         updateButtonState();
     }
     
-    @Override
-    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
+    private void setupNavigation() {
+        TextView navHome = (TextView) findViewById(R.id.nav_home);
+        TextView navHistory = (TextView) findViewById(R.id.nav_history);
+        TextView navAbout = (TextView) findViewById(R.id.nav_about);
+        TextView navReport = (TextView) findViewById(R.id.nav_report);
+        TextView navPrivacy = (TextView) findViewById(R.id.nav_privacy);
         
-        if (id == R.id.nav_home) {
-            drawerLayout.closeDrawer(GravityCompat.START);
-        } else if (id == R.id.nav_history) {
-            showHistoryDialog();
-        } else if (id == R.id.nav_about) {
-            showAboutDialog();
-        } else if (id == R.id.nav_report) {
-            openReportProblem();
-        } else if (id == R.id.nav_privacy) {
-            showPrivacyDialog();
+        if (navHome != null) {
+            navHome.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                }
+            });
         }
         
-        drawerLayout.closeDrawer(GravityCompat.START);
-        return true;
+        if (navHistory != null) {
+            navHistory.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    showHistoryDialog();
+                }
+            });
+        }
+        
+        if (navAbout != null) {
+            navAbout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    showAboutDialog();
+                }
+            });
+        }
+        
+        if (navReport != null) {
+            navReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    openReportProblem();
+                }
+            });
+        }
+        
+        if (navPrivacy != null) {
+            navPrivacy.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    showPrivacyDialog();
+                }
+            });
+        }
     }
     
     private void openReportProblem() {
@@ -513,8 +547,8 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
     
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-            drawerLayout.closeDrawer(GravityCompat.START);
+        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            drawerLayout.closeDrawer(Gravity.LEFT);
         } else {
             super.onBackPressed();
         }
@@ -603,10 +637,10 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
-        TextView tvFailureCount = dialog.findViewById(R.id.tv_failure_count);
-        LinearLayout layoutItems = dialog.findViewById(R.id.layout_failure_items);
-        Button btnClear = dialog.findViewById(R.id.btn_clear_failures);
-        Button btnClose = dialog.findViewById(R.id.btn_close_failures);
+        TextView tvFailureCount = (TextView) dialog.findViewById(R.id.tv_failure_count);
+        LinearLayout layoutItems = (LinearLayout) dialog.findViewById(R.id.layout_failure_items);
+        Button btnClear = (Button) dialog.findViewById(R.id.btn_clear_failures);
+        Button btnClose = (Button) dialog.findViewById(R.id.btn_close_failures);
         
         String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
         
@@ -670,10 +704,10 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
     private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc, String time) {
         View itemView = LayoutInflater.from(this).inflate(R.layout.item_failure_reason, parent, false);
         
-        TextView tvIcon = itemView.findViewById(R.id.tv_failure_icon);
-        TextView tvTitle = itemView.findViewById(R.id.tv_failure_title);
-        TextView tvDesc = itemView.findViewById(R.id.tv_failure_desc);
-        TextView tvTime = itemView.findViewById(R.id.tv_failure_time);
+        TextView tvIcon = (TextView) itemView.findViewById(R.id.tv_failure_icon);
+        TextView tvTitle = (TextView) itemView.findViewById(R.id.tv_failure_title);
+        TextView tvDesc = (TextView) itemView.findViewById(R.id.tv_failure_desc);
+        TextView tvTime = (TextView) itemView.findViewById(R.id.tv_failure_time);
         
         tvIcon.setText(icon);
         tvTitle.setText(title);
@@ -853,11 +887,11 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
-        LinearLayout layoutItems = dialog.findViewById(R.id.layout_history_items);
-        Button btnClear = dialog.findViewById(R.id.btn_clear_history);
-        Button btnClose = dialog.findViewById(R.id.btn_close_history);
+        final LinearLayout layoutItems = (LinearLayout) dialog.findViewById(R.id.layout_history_items);
+        Button btnClear = (Button) dialog.findViewById(R.id.btn_clear_history);
+        Button btnClose = (Button) dialog.findViewById(R.id.btn_close_history);
         
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        final SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         String historyJson = prefs.getString(KEY_HISTORY, "[]");
         
         try {
@@ -939,8 +973,8 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
-        Button btnClose = dialog.findViewById(R.id.btn_close_about);
-        Button btnReport = dialog.findViewById(R.id.btn_report_problem);
+        Button btnClose = (Button) dialog.findViewById(R.id.btn_close_about);
+        Button btnReport = (Button) dialog.findViewById(R.id.btn_report_problem);
         
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -969,14 +1003,16 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
-        Button btnClose = dialog.findViewById(R.id.btn_close_privacy);
+        Button btnClose = (Button) dialog.findViewById(R.id.btn_close_privacy);
         
-        btnClose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-            }
-        });
+        if (btnClose != null) {
+            btnClose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                }
+            });
+        }
         
         dialog.show();
     }
@@ -997,9 +1033,9 @@ public class MainActivity extends Activity implements NavigationView.OnNavigatio
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(false);
         
-        CheckBox cbAccept = dialog.findViewById(R.id.cb_accept_privacy);
-        Button btnAccept = dialog.findViewById(R.id.btn_accept_privacy);
-        Button btnClose = dialog.findViewById(R.id.btn_close_privacy);
+        final CheckBox cbAccept = (CheckBox) dialog.findViewById(R.id.cb_accept_privacy);
+        final Button btnAccept = (Button) dialog.findViewById(R.id.btn_accept_privacy);
+        Button btnClose = (Button) dialog.findViewById(R.id.btn_close_privacy);
         
         if (btnAccept != null) {
             btnAccept.setEnabled(false);
