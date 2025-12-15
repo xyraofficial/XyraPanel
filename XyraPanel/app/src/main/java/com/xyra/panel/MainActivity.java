@@ -1,5 +1,7 @@
 package com.xyra.panel;
 
+import com.xyra.config.R;
+
 import android.app.Activity;
 import android.os.AsyncTask; 
 import android.os.Bundle;
