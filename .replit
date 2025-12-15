@@ -7,6 +7,27 @@ packages = ["unzip"]
 expertMode = true
 
 [workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Project Info"
+
+[[workflows.workflow]]
+name = "Project Info"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash info.sh && echo \"\" && echo \"Press Ctrl+C to exit\" && sleep infinity"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [[ports]]
 localPort = 5000

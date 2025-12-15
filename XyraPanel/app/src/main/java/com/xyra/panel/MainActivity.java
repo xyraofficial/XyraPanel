@@ -38,8 +38,8 @@ import android.text.Editable;
 import android.os.Vibrator;
 import android.os.VibrationEffect;
 import android.net.Uri;
-
-import android.support.v4.widget.DrawerLayout;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -70,9 +70,10 @@ public class MainActivity extends Activity {
     private View statusDot;
     private View btnFailureInfo;
     
-    private DrawerLayout drawerLayout;
+    private View drawerOverlay;
     private LinearLayout navDrawer;
     private ImageButton btnMenu;
+    private boolean isDrawerOpen = false;
 
     private AccFloodTask currentTask;
     private boolean isRunning = false;
@@ -339,17 +340,26 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerOverlay = findViewById(R.id.drawer_overlay);
         navDrawer = (LinearLayout) findViewById(R.id.nav_drawer);
         btnMenu = (ImageButton) findViewById(R.id.btn_menu);
+        
+        if (drawerOverlay != null) {
+            drawerOverlay.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    closeDrawer();
+                }
+            });
+        }
         
         btnMenu.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                if (isDrawerOpen) {
+                    closeDrawer();
                 } else {
-                    drawerLayout.openDrawer(Gravity.LEFT);
+                    openDrawer();
                 }
             }
         });
@@ -463,6 +473,57 @@ public class MainActivity extends Activity {
         updateButtonState();
     }
     
+    private void openDrawer() {
+        if (navDrawer != null && !isDrawerOpen) {
+            navDrawer.setVisibility(View.VISIBLE);
+            if (drawerOverlay != null) {
+                drawerOverlay.setVisibility(View.VISIBLE);
+            }
+            
+            Animation slideIn = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, -1.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f
+            );
+            slideIn.setDuration(250);
+            slideIn.setFillAfter(true);
+            navDrawer.startAnimation(slideIn);
+            
+            isDrawerOpen = true;
+        }
+    }
+    
+    private void closeDrawer() {
+        if (navDrawer != null && isDrawerOpen) {
+            Animation slideOut = new TranslateAnimation(
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, -1.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f,
+                Animation.RELATIVE_TO_SELF, 0.0f
+            );
+            slideOut.setDuration(250);
+            slideOut.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {}
+                
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    navDrawer.setVisibility(View.GONE);
+                    if (drawerOverlay != null) {
+                        drawerOverlay.setVisibility(View.GONE);
+                    }
+                }
+                
+                @Override
+                public void onAnimationRepeat(Animation animation) {}
+            });
+            navDrawer.startAnimation(slideOut);
+            
+            isDrawerOpen = false;
+        }
+    }
+    
     private void setupNavigation() {
         TextView navHome = (TextView) findViewById(R.id.nav_home);
         TextView navHistory = (TextView) findViewById(R.id.nav_history);
@@ -474,7 +535,7 @@ public class MainActivity extends Activity {
             navHome.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    closeDrawer();
                 }
             });
         }
@@ -483,7 +544,7 @@ public class MainActivity extends Activity {
             navHistory.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    closeDrawer();
                     showHistoryDialog();
                 }
             });
@@ -493,7 +554,7 @@ public class MainActivity extends Activity {
             navAbout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    closeDrawer();
                     showAboutDialog();
                 }
             });
@@ -503,7 +564,7 @@ public class MainActivity extends Activity {
             navReport.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    closeDrawer();
                     openReportProblem();
                 }
             });
@@ -513,7 +574,7 @@ public class MainActivity extends Activity {
             navPrivacy.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    drawerLayout.closeDrawer(Gravity.LEFT);
+                    closeDrawer();
                     showPrivacyDialog();
                 }
             });
@@ -547,8 +608,8 @@ public class MainActivity extends Activity {
     
     @Override
     public void onBackPressed() {
-        if (drawerLayout.isDrawerOpen(Gravity.LEFT)) {
-            drawerLayout.closeDrawer(Gravity.LEFT);
+        if (isDrawerOpen) {
+            closeDrawer();
         } else {
             super.onBackPressed();
         }
