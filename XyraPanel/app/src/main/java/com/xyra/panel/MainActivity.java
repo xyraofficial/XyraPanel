@@ -33,9 +33,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
-import android.animation.ValueAnimator;
-import android.animation.ArgbEvaluator;
-import android.view.animation.LinearInterpolator;
+import java.util.ArrayList;
+import java.util.Collections;
 
 public class MainActivity extends Activity {
 
@@ -68,6 +67,60 @@ public class MainActivity extends Activity {
         private long totalDurationMs = 0;
         private int totalKirim = 0;
         private final int DELAY_SECONDS = 3;
+        private ArrayList<String> userAgentPool;
+        private ArrayList<String> usedUserAgents;
+
+        private void initUserAgentPool() {
+            userAgentPool = new ArrayList<>();
+            usedUserAgents = new ArrayList<>();
+            
+            String[] browsers = {"Chrome", "Firefox", "Safari", "Edge", "Opera"};
+            String[] devices = {
+                "Linux; Android 13; SM-S918B",
+                "Linux; Android 14; Pixel 8 Pro",
+                "Linux; Android 13; SM-A546B",
+                "Linux; Android 12; Redmi Note 11",
+                "Linux; Android 14; OnePlus 12",
+                "Linux; Android 13; vivo V29",
+                "Linux; Android 12; OPPO Reno8",
+                "Linux; Android 14; Xiaomi 14",
+                "Linux; Android 13; realme GT",
+                "Linux; Android 11; Samsung Galaxy A52",
+                "iPhone; CPU iPhone OS 17_0 like Mac OS X",
+                "iPhone; CPU iPhone OS 16_6 like Mac OS X",
+                "iPad; CPU OS 17_0 like Mac OS X",
+                "Windows NT 10.0; Win64; x64",
+                "Macintosh; Intel Mac OS X 10_15_7"
+            };
+            
+            Random rand = new Random();
+            for (String device : devices) {
+                for (String browser : browsers) {
+                    int majorVer = rand.nextInt(30) + 100;
+                    int minorVer = rand.nextInt(10);
+                    String ua = "Mozilla/5.0 (" + device + ") AppleWebKit/537.36 (KHTML, like Gecko) " 
+                              + browser + "/" + majorVer + "." + minorVer + ".0.0 Safari/537.36";
+                    userAgentPool.add(ua);
+                }
+            }
+            Collections.shuffle(userAgentPool);
+        }
+
+        private String getUniqueUserAgent() {
+            if (userAgentPool == null || userAgentPool.isEmpty()) {
+                initUserAgentPool();
+            }
+            
+            if (userAgentPool.isEmpty()) {
+                userAgentPool.addAll(usedUserAgents);
+                usedUserAgents.clear();
+                Collections.shuffle(userAgentPool);
+            }
+            
+            String ua = userAgentPool.remove(0);
+            usedUserAgents.add(ua);
+            return ua;
+        }
 
         @Override
         protected void onPreExecute() {
@@ -107,8 +160,7 @@ public class MainActivity extends Activity {
 
                     String jsonData = jsonArray.toString();
 
-                    Random rand = new Random();
-                    String userAgent = "Mozilla/5.0 (Android) Chrome/" + (rand.nextInt(25) + 100) + ".0.0.0 Safari/537.36";
+                    String userAgent = getUniqueUserAgent();
 
                     URL url = new URL(urlStr);
                     conn = (HttpURLConnection) url.openConnection();
