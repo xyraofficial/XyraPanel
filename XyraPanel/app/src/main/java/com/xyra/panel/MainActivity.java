@@ -41,7 +41,6 @@ public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
     private TextView tvAppTitle;
-    private ValueAnimator colorAnimator;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
     private Button btnSms, btnWhatsapp;
@@ -295,7 +294,8 @@ public class MainActivity extends Activity {
         tvAppTitle = findViewById(R.id.tv_app_title);
         tvAppTitle.setText("XyraPanel");
 
-        startColorAnimation();
+        // Title dengan warna gradient static
+        tvAppTitle.setTextColor(getResources().getColor(R.color.colorPrimary));
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -618,37 +618,8 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
-    private void startColorAnimation() {
-        int colorPink = Color.parseColor("#FF1493");
-        int colorOrange = Color.parseColor("#FF6B35");
-        int colorGold = Color.parseColor("#FFD700");
-        int colorGreen = Color.parseColor("#00D084");
-        int colorCyan = Color.parseColor("#00CED1");
-        int colorBlue = Color.parseColor("#4169E1");
-        int colorPurple = Color.parseColor("#9B59B6");
-        
-        colorAnimator = ValueAnimator.ofObject(
-            new ArgbEvaluator(), 
-            colorPink, colorOrange, colorGold, colorGreen, 
-            colorCyan, colorBlue, colorPurple, colorPink
-        );
-        colorAnimator.setDuration(4000);
-        colorAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        colorAnimator.setInterpolator(new LinearInterpolator());
-        colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator animator) {
-                tvAppTitle.setTextColor((int) animator.getAnimatedValue());
-            }
-        });
-        colorAnimator.start();
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (colorAnimator != null) {
-            colorAnimator.cancel();
-        }
     }
 }
