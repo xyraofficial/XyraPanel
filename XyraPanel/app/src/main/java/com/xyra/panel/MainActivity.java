@@ -90,7 +90,6 @@ public class MainActivity extends Activity {
     private static final String CHANNEL_ID = "xyra_channel";
     private static final String ACTION_SHOW_HISTORY = "com.xyra.panel.SHOW_HISTORY";
     private static final int NOTIFICATION_ID = 1001;
-    private Button btnHistory, btnAbout;
     
     private static final String SUPPORT_EMAIL = "xyraofficialsup@gmail.com";
     private static final String REPORT_API_URL = "https://xyra-panel-api.vercel.app/api/report";
@@ -453,22 +452,6 @@ public class MainActivity extends Activity {
             }
         });
 
-        btnHistory = (Button) findViewById(R.id.btn_history);
-        btnAbout = (Button) findViewById(R.id.btn_about);
-
-        btnHistory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showHistoryDialog();
-            }
-        });
-
-        btnAbout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showAboutDialog();
-            }
-        });
 
         createNotificationChannel();
         checkPrivacyPolicy();
@@ -1156,6 +1139,57 @@ public class MainActivity extends Activity {
                 emptyLayout.addView(emptyText);
                 layoutItems.addView(emptyLayout);
             } else {
+                LinearLayout headerRow = new LinearLayout(this);
+                headerRow.setOrientation(LinearLayout.HORIZONTAL);
+                headerRow.setPadding(12, 12, 12, 12);
+                headerRow.setBackgroundColor(getResources().getColor(R.color.cardBackground));
+                
+                TextView hNo = new TextView(this);
+                hNo.setText("No");
+                hNo.setTextColor(getResources().getColor(R.color.textTertiary));
+                hNo.setTextSize(11);
+                hNo.setTypeface(null, android.graphics.Typeface.BOLD);
+                LinearLayout.LayoutParams noParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+                hNo.setLayoutParams(noParams);
+                
+                TextView hPhone = new TextView(this);
+                hPhone.setText("Nomor");
+                hPhone.setTextColor(getResources().getColor(R.color.textTertiary));
+                hPhone.setTextSize(11);
+                hPhone.setTypeface(null, android.graphics.Typeface.BOLD);
+                LinearLayout.LayoutParams phoneParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.5f);
+                hPhone.setLayoutParams(phoneParams);
+                
+                TextView hProvider = new TextView(this);
+                hProvider.setText("Via");
+                hProvider.setTextColor(getResources().getColor(R.color.textTertiary));
+                hProvider.setTextSize(11);
+                hProvider.setTypeface(null, android.graphics.Typeface.BOLD);
+                LinearLayout.LayoutParams provParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f);
+                hProvider.setLayoutParams(provParams);
+                
+                TextView hResult = new TextView(this);
+                hResult.setText("Hasil");
+                hResult.setTextColor(getResources().getColor(R.color.textTertiary));
+                hResult.setTextSize(11);
+                hResult.setTypeface(null, android.graphics.Typeface.BOLD);
+                LinearLayout.LayoutParams resultParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f);
+                hResult.setLayoutParams(resultParams);
+                
+                headerRow.addView(hNo);
+                headerRow.addView(hPhone);
+                headerRow.addView(hProvider);
+                headerRow.addView(hResult);
+                layoutItems.addView(headerRow);
+                
+                View headerDivider = new View(this);
+                headerDivider.setBackgroundColor(getResources().getColor(R.color.divider));
+                LinearLayout.LayoutParams divParams = new LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 2);
+                headerDivider.setLayoutParams(divParams);
+                layoutItems.addView(headerDivider);
+                
+                int rowNum = 1;
                 for (int i = historyArray.length() - 1; i >= 0; i--) {
                     JSONObject entry = historyArray.getJSONObject(i);
                     
@@ -1164,46 +1198,46 @@ public class MainActivity extends Activity {
                     itemLayout.setPadding(12, 14, 12, 14);
                     itemLayout.setGravity(Gravity.CENTER_VERTICAL);
                     
+                    if (rowNum % 2 == 0) {
+                        itemLayout.setBackgroundColor(0x10FFFFFF);
+                    }
+                    
                     String provider = entry.optString("provider", "sms").toUpperCase();
                     int successCount = entry.getInt("success");
                     int failedCount = entry.getInt("failed");
                     
-                    TextView tvProviderBadge = new TextView(this);
-                    tvProviderBadge.setText(provider);
-                    tvProviderBadge.setTextColor(provider.equals("SMS") ? getResources().getColor(R.color.iosBlue) : getResources().getColor(R.color.iosGreen));
-                    tvProviderBadge.setTextSize(10);
-                    tvProviderBadge.setPadding(12, 6, 12, 6);
-                    tvProviderBadge.setBackgroundResource(R.drawable.chip_unselected);
-                    
-                    LinearLayout infoLayout = new LinearLayout(this);
-                    infoLayout.setOrientation(LinearLayout.VERTICAL);
-                    infoLayout.setPadding(14, 0, 0, 0);
-                    LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
-                    infoLayout.setLayoutParams(infoParams);
+                    TextView tvNo = new TextView(this);
+                    tvNo.setText(String.valueOf(rowNum));
+                    tvNo.setTextColor(getResources().getColor(R.color.textTertiary));
+                    tvNo.setTextSize(12);
+                    LinearLayout.LayoutParams noP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+                    tvNo.setLayoutParams(noP);
                     
                     TextView tvPhone = new TextView(this);
                     tvPhone.setText(entry.getString("phone"));
                     tvPhone.setTextColor(getResources().getColor(R.color.textPrimary));
-                    tvPhone.setTextSize(15);
-                    tvPhone.setTypeface(null, android.graphics.Typeface.BOLD);
+                    tvPhone.setTextSize(13);
+                    LinearLayout.LayoutParams phoneP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.5f);
+                    tvPhone.setLayoutParams(phoneP);
                     
-                    TextView tvStats = new TextView(this);
-                    tvStats.setText("✓ " + successCount + "  ✗ " + failedCount);
-                    tvStats.setTextColor(getResources().getColor(R.color.textSecondary));
-                    tvStats.setTextSize(12);
-                    tvStats.setPadding(0, 4, 0, 0);
+                    TextView tvProvider = new TextView(this);
+                    tvProvider.setText(provider);
+                    tvProvider.setTextColor(provider.equals("SMS") ? getResources().getColor(R.color.iosBlue) : getResources().getColor(R.color.iosGreen));
+                    tvProvider.setTextSize(11);
+                    LinearLayout.LayoutParams provP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f);
+                    tvProvider.setLayoutParams(provP);
                     
-                    infoLayout.addView(tvPhone);
-                    infoLayout.addView(tvStats);
+                    TextView tvResult = new TextView(this);
+                    tvResult.setText(successCount + "/" + (successCount + failedCount));
+                    tvResult.setTextColor(getResources().getColor(R.color.textSecondary));
+                    tvResult.setTextSize(12);
+                    LinearLayout.LayoutParams resultP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f);
+                    tvResult.setLayoutParams(resultP);
                     
-                    TextView tvTime = new TextView(this);
-                    tvTime.setText(entry.getString("time"));
-                    tvTime.setTextColor(getResources().getColor(R.color.textTertiary));
-                    tvTime.setTextSize(11);
-                    
-                    itemLayout.addView(tvProviderBadge);
-                    itemLayout.addView(infoLayout);
-                    itemLayout.addView(tvTime);
+                    itemLayout.addView(tvNo);
+                    itemLayout.addView(tvPhone);
+                    itemLayout.addView(tvProvider);
+                    itemLayout.addView(tvResult);
                     
                     layoutItems.addView(itemLayout);
                     
@@ -1212,10 +1246,11 @@ public class MainActivity extends Activity {
                         divider.setBackgroundColor(getResources().getColor(R.color.divider));
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT, 1);
-                        params.setMargins(12, 0, 12, 0);
                         divider.setLayoutParams(params);
                         layoutItems.addView(divider);
                     }
+                    
+                    rowNum++;
                 }
             }
         } catch (Exception e) {
@@ -1327,7 +1362,31 @@ public class MainActivity extends Activity {
         lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
         lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         
+        final CheckBox cbAccept = (CheckBox) dialog.findViewById(R.id.cb_accept_privacy);
+        final Button btnAccept = (Button) dialog.findViewById(R.id.btn_accept_privacy);
         Button btnClose = (Button) dialog.findViewById(R.id.btn_close_privacy);
+        
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean accepted = prefs.getBoolean(KEY_PRIVACY_ACCEPTED, false);
+        
+        if (cbAccept != null && accepted) {
+            cbAccept.setChecked(true);
+        }
+        
+        if (btnAccept != null && accepted) {
+            btnAccept.setEnabled(true);
+            btnAccept.setAlpha(1.0f);
+        }
+        
+        if (cbAccept != null && btnAccept != null) {
+            cbAccept.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    btnAccept.setEnabled(isChecked);
+                    btnAccept.setAlpha(isChecked ? 1.0f : 0.5f);
+                }
+            });
+        }
         
         if (btnClose != null) {
             btnClose.setOnClickListener(new View.OnClickListener() {

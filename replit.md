@@ -27,6 +27,20 @@ XyraPanel/
 ## Recent Changes (December 15, 2025)
 
 ### Latest Fixes (December 15, 2025)
+- **FIXED**: Privacy Policy checkbox - now checked automatically when opened from navigation (if already accepted)
+  - When user opens Privacy Policy from sidebar after initial acceptance, checkbox is pre-checked
+  - Continue button is enabled automatically
+  
+- **IMPROVED**: History dialog with smooth table layout
+  - Replaced card-style layout with clean table format
+  - Added column headers: No, Nomor, Via, Hasil
+  - Alternating row colors for better readability
+  - Compact display showing success/total count
+
+- **REMOVED**: History and About buttons from main screen
+  - Bottom buttons removed for cleaner UI
+  - Features now accessible only through navigation drawer
+
 - **FIXED**: All dialog layouts - dialogs were too narrow causing text to wrap vertically
   - Set all dialog widths to 90% of screen width using WindowManager.LayoutParams
   - Affected dialogs: About, History, Privacy, Report Problem, Failure Info
@@ -35,13 +49,6 @@ XyraPanel/
   - Swipe from left edge of screen to right to open navigation drawer
   - Swipe left anywhere to close drawer when open
   - Uses GestureDetector with dispatchTouchEvent for smooth handling
-
-- **IMPROVED**: History dialog UI
-  - Added professional header with subtitle
-  - Enhanced history items with provider badge (SMS/WhatsApp)
-  - Better empty state with icon
-  - Improved layout with horizontal card design
-  - Added visual separators and better spacing
 
 ### New Features Added
 - **Navigation Bar (Toolbar)**: Header dengan tombol menu hamburger
