@@ -3,18 +3,21 @@
 ## Overview
 XyraPanel adalah aplikasi Android untuk pengiriman OTP ACC.co.id. Aplikasi ini mendukung pengiriman via SMS dan WhatsApp.
 
+**PENTING**: Ini adalah proyek Android native. Tidak bisa dijalankan di Replit karena tidak ada Android SDK. Build menggunakan AIDE atau Android Studio.
+
 ## Project Structure
 ```
 XyraPanel/
 ├── app/
+│   ├── libs/                    - JAR libraries (okhttp, okio)
 │   ├── src/main/
 │   │   ├── java/com/xyra/panel/
 │   │   │   └── MainActivity.java
 │   │   ├── res/
-│   │   │   ├── drawable/     - Button styles, icons, backgrounds
-│   │   │   ├── layout/       - Activity dan dialog layouts
-│   │   │   ├── values/       - Colors, strings, styles
-│   │   │   └── xml/          - Network security config
+│   │   │   ├── drawable/        - Button styles, icons, backgrounds
+│   │   │   ├── layout/          - Activity dan dialog layouts
+│   │   │   ├── values/          - Colors, strings, styles
+│   │   │   └── xml/             - Network security config
 │   │   └── AndroidManifest.xml
 │   └── build.gradle
 ├── build.gradle
@@ -22,21 +25,11 @@ XyraPanel/
 ```
 
 ## Recent Changes (December 15, 2025)
-- Added btn_history and btn_about buttons to activity_main.xml
-- Fixed "variable must be final" error in showHistoryDialog()
-- Added AndroidX core dependency for NotificationCompat
-
-## Dependencies
-- androidx.core:core:1.9.0
-- androidx.appcompat:appcompat:1.6.1
-- okhttp-4.9.3.jar (in libs folder)
-- okio-2.8.0.jar (in libs folder)
-
-## Build Instructions
-This is an Android project. To build:
-1. Open project in Android Studio or AIDE
-2. Sync Gradle files
-3. Build APK (Build > Build Bundle(s) / APK(s) > Build APK(s))
+- Added responsive layouts (match_parent with margins)
+- Fixed NotificationCompat -> Notification.Builder (no AndroidX)
+- Added clickable notifications that open History dialog
+- Added history statistics (Total, Berhasil, Gagal)
+- Fixed bottom buttons visibility (paddingBottom=80dp)
 
 ## Features
 - Phone number input with validation
@@ -45,4 +38,13 @@ This is an Android project. To build:
 - Progress tracking with success/fail stats
 - Send history with clear option
 - Privacy policy dialog
-- Notifications on completion
+- Clickable notifications -> History
+
+## Build Instructions
+1. Copy XyraPanel folder to device
+2. Open in AIDE or Android Studio
+3. Sync Gradle files
+4. Build APK
+
+## Note
+LSP errors in Replit (100 diagnostics) are expected - no Android SDK available.
