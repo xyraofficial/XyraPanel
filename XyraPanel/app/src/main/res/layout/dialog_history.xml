@@ -1,32 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="320dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/dialog_background"
-    android:padding="20dp">
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="4dp">
-
-        <LinearLayout
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="@drawable/icon_background"
-            android:gravity="center"
-            android:layout_marginRight="12dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="📋"
-                android:textSize="18sp" />
-
-        </LinearLayout>
+        android:layout_marginBottom="12dp">
 
         <TextView
             android:layout_width="0dp"
@@ -34,37 +19,28 @@
             android:layout_weight="1"
             android:text="Riwayat Pengiriman"
             android:textColor="@color/textPrimary"
-            android:textSize="18sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_clear_history"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="32dp"
             android:background="@drawable/button_stop"
             android:text="HAPUS"
             android:textColor="#FFFFFF"
             android:textSize="11sp"
             android:textStyle="bold"
-            android:paddingLeft="14dp"
-            android:paddingRight="14dp" />
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp" />
 
     </LinearLayout>
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Catatan pengiriman OTP terakhir Anda"
-        android:textColor="@color/textTertiary"
-        android:textSize="12sp"
-        android:layout_marginBottom="16dp" />
-
     <LinearLayout
-        android:id="@+id/history_stats_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="12dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -72,7 +48,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="12dp"
+            android:padding="10dp"
             android:gravity="center"
             android:layout_marginRight="6dp">
 
@@ -82,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textColor="@color/colorPrimary"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -90,7 +66,7 @@
                 android:layout_height="wrap_content"
                 android:text="Total"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
         </LinearLayout>
 
@@ -100,7 +76,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="12dp"
+            android:padding="10dp"
             android:gravity="center"
             android:layout_marginRight="6dp">
 
@@ -110,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textColor="@color/successColor"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -118,7 +94,7 @@
                 android:layout_height="wrap_content"
                 android:text="Berhasil"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
         </LinearLayout>
 
@@ -128,7 +104,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="12dp"
+            android:padding="10dp"
             android:gravity="center">
 
             <TextView
@@ -137,7 +113,7 @@
                 android:layout_height="wrap_content"
                 android:text="0"
                 android:textColor="@color/errorColor"
-                android:textSize="20sp"
+                android:textSize="18sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -145,7 +121,7 @@
                 android:layout_height="wrap_content"
                 android:text="Gagal"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp" />
+                android:textSize="10sp" />
 
         </LinearLayout>
 
@@ -156,40 +132,36 @@
         android:layout_height="wrap_content"
         android:text="LOG AKTIVITAS"
         android:textColor="@color/textTertiary"
-        android:textSize="11sp"
-        android:letterSpacing="0.1"
-        android:layout_marginBottom="8dp" />
+        android:textSize="10sp"
+        android:letterSpacing="0.05"
+        android:layout_marginBottom="6dp" />
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="220dp"
+        android:layout_height="180dp"
         android:background="@drawable/input_background"
-        android:padding="14dp"
-        android:fadingEdge="vertical"
-        android:fadingEdgeLength="20dp"
-        android:requiresFadingEdge="vertical">
+        android:padding="10dp">
 
         <TextView
             android:id="@+id/tv_history_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Belum ada riwayat pengiriman"
+            android:text="Belum ada riwayat"
             android:textColor="@color/textSecondary"
-            android:textSize="13sp"
-            android:lineSpacingMultiplier="1.5"
-            android:fontFamily="monospace" />
+            android:textSize="11sp"
+            android:lineSpacingMultiplier="1.4" />
 
     </ScrollView>
 
     <Button
         android:id="@+id/btn_close_history"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="44dp"
+        android:layout_marginTop="12dp"
         android:background="@drawable/button_primary"
         android:text="TUTUP"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold" />
 
 </LinearLayout>

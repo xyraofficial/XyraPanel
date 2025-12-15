@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:layout_width="300dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:background="@drawable/dialog_background"
-    android:padding="24dp"
+    android:padding="20dp"
     android:gravity="center_horizontal">
 
     <LinearLayout
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:background="@drawable/icon_background"
         android:gravity="center"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="16dp">
 
         <ImageView
-            android:layout_width="70dp"
-            android:layout_height="70dp"
+            android:layout_width="55dp"
+            android:layout_height="55dp"
             android:src="@drawable/ic_launcher"
             android:scaleType="fitCenter" />
 
@@ -27,45 +27,45 @@
         android:layout_height="wrap_content"
         android:text="Xyra Panel"
         android:textColor="@color/textPrimary"
-        android:textSize="26sp"
+        android:textSize="22sp"
         android:textStyle="bold"
-        android:layout_marginBottom="6dp" />
+        android:layout_marginBottom="4dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Version 1.0.0"
         android:textColor="@color/colorPrimary"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold"
-        android:layout_marginBottom="24dp" />
+        android:layout_marginBottom="16dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/stat_background"
         android:orientation="vertical"
-        android:padding="16dp"
+        android:padding="14dp"
         android:gravity="center"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="12dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="ACC OTP Sender"
             android:textColor="@color/colorPrimary"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:textStyle="bold"
-            android:layout_marginBottom="8dp" />
+            android:layout_marginBottom="6dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Aplikasi untuk mengirim OTP melalui layanan ACC dengan pilihan SMS atau WhatsApp. Gunakan dengan bijak dan bertanggung jawab."
+            android:text="Aplikasi untuk mengirim OTP melalui layanan ACC dengan pilihan SMS atau WhatsApp."
             android:textColor="@color/textSecondary"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:gravity="center"
-            android:lineSpacingMultiplier="1.4" />
+            android:lineSpacingMultiplier="1.3" />
 
     </LinearLayout>
 
@@ -73,7 +73,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="12dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -81,24 +81,24 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="14dp"
+            android:padding="10dp"
             android:gravity="center"
-            android:layout_marginRight="8dp">
+            android:layout_marginRight="6dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Developer"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="10sp"
+                android:layout_marginBottom="2dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Xyra Team"
+                android:text="Xyra"
                 android:textColor="@color/colorPrimary"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -109,7 +109,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="14dp"
+            android:padding="10dp"
             android:gravity="center">
 
             <TextView
@@ -117,15 +117,15 @@
                 android:layout_height="wrap_content"
                 android:text="Released"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="10sp"
+                android:layout_marginBottom="2dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Dec 2025"
+                android:text="2025"
                 android:textColor="@color/colorPrimary"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -136,7 +136,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="16dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -144,24 +144,24 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="14dp"
+            android:padding="10dp"
             android:gravity="center"
-            android:layout_marginRight="8dp">
+            android:layout_marginRight="6dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Max Send"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="10sp"
+                android:layout_marginBottom="2dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="5x"
                 android:textColor="@color/successColor"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -172,7 +172,7 @@
             android:layout_weight="1"
             android:orientation="vertical"
             android:background="@drawable/stat_background"
-            android:padding="14dp"
+            android:padding="10dp"
             android:gravity="center">
 
             <TextView
@@ -180,15 +180,15 @@
                 android:layout_height="wrap_content"
                 android:text="Delay"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp"
-                android:layout_marginBottom="4dp" />
+                android:textSize="10sp"
+                android:layout_marginBottom="2dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="3 detik"
                 android:textColor="@color/warningColor"
-                android:textSize="15sp"
+                android:textSize="14sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
@@ -198,11 +198,11 @@
     <Button
         android:id="@+id/btn_close_about"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="46dp"
         android:background="@drawable/button_primary"
         android:text="TUTUP"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold" />
 
 </LinearLayout>

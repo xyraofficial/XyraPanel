@@ -584,7 +584,7 @@ public class MainActivity extends Activity {
         
         for (String line : lines) {
             if (line.trim().isEmpty()) continue;
-            formatted.append("▸ ").append(line).append("\n\n");
+            formatted.append("> ").append(line).append("\n\n");
         }
         
         return formatted.toString().trim();
