@@ -455,27 +455,38 @@ public class MainActivity extends Activity {
         
         String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
         
-        int totalIssues = failureList.size();
-        if (isVpnActive()) totalIssues++;
-        if (isPacketCaptureAppInstalled()) totalIssues++;
-        if (!isNetworkAvailable()) totalIssues++;
+        boolean vpnActive = isVpnActive();
+        boolean captureInstalled = isPacketCaptureAppInstalled();
+        boolean noNetwork = !isNetworkAvailable();
+        
+        int totalIssues = 0;
+        if (vpnActive) totalIssues++;
+        if (captureInstalled) totalIssues++;
+        if (noNetwork) totalIssues++;
+        
+        for (FailureInfo info : failureList) {
+            if (info.title.equals("Tidak Ada Jaringan") && noNetwork) {
+                continue;
+            }
+            totalIssues++;
+        }
         
         tvFailureCount.setText(totalIssues + " masalah terdeteksi");
         
-        if (isVpnActive()) {
+        if (vpnActive) {
             addFailureItemToLayout(layoutItems, "V", "VPN Terdeteksi", "VPN aktif dapat mengganggu koneksi", currentTime);
         }
         
-        if (isPacketCaptureAppInstalled()) {
+        if (captureInstalled) {
             addFailureItemToLayout(layoutItems, "H", "HTTP Capture Terdeteksi", "Aplikasi capture HTTP/SSL terinstal", currentTime);
         }
         
-        if (!isNetworkAvailable()) {
+        if (noNetwork) {
             addFailureItemToLayout(layoutItems, "N", "Tidak Ada Jaringan", "Perangkat tidak terhubung ke internet", currentTime);
         }
         
         for (FailureInfo info : failureList) {
-            if (info.title.equals("Tidak Ada Jaringan") && !isNetworkAvailable()) {
+            if (info.title.equals("Tidak Ada Jaringan") && noNetwork) {
                 continue;
             }
             addFailureItemToLayout(layoutItems, info.icon, info.title, info.description, info.time);
