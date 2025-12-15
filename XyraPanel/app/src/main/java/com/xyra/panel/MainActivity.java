@@ -31,6 +31,11 @@ import android.net.NetworkCapabilities;
 import android.content.pm.PackageManager;
 import android.content.Context;
 import android.view.inputmethod.InputMethodManager;
+import android.text.TextWatcher;
+import android.text.Editable;
+import android.os.Vibrator;
+import android.os.VibrationEffect;
+import android.net.Uri;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -217,6 +222,7 @@ public class MainActivity extends Activity {
 
                     if (responseCode == 200) {
                         totalSuccesses++;
+                        publishProgress("SUCCESS");
                     } else {
                         totalFailures++;
                         publishProgress("FAILURE", "Server Error", "Response code: " + responseCode, i, totalKirim);
@@ -277,6 +283,9 @@ public class MainActivity extends Activity {
                 String title = (String) values[1];
                 String desc = (String) values[2];
                 addFailureInfo("!", title, desc);
+                vibrateFailed();
+            } else if ("SUCCESS".equals(type)) {
+                vibrateSuccess();
             }
         }
 
@@ -426,6 +435,72 @@ public class MainActivity extends Activity {
         checkPrivacyPolicy();
         selectProvider("sms");
         handleNotificationIntent(getIntent());
+        
+        setupInputValidation();
+        updateButtonState();
+    }
+    
+    private void setupInputValidation() {
+        TextWatcher inputWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateButtonState();
+            }
+        };
+        
+        etTargetPhone.addTextChangedListener(inputWatcher);
+        etJumlahKirim.addTextChangedListener(inputWatcher);
+    }
+    
+    private void updateButtonState() {
+        if (isRunning) return;
+        
+        String phone = etTargetPhone.getText().toString().trim();
+        String jumlahStr = etJumlahKirim.getText().toString().trim();
+        
+        boolean isValid = !phone.isEmpty() && !jumlahStr.isEmpty();
+        
+        if (isValid) {
+            try {
+                int jumlah = Integer.parseInt(jumlahStr);
+                isValid = jumlah > 0 && jumlah <= MAX_SEND;
+            } catch (NumberFormatException e) {
+                isValid = false;
+            }
+        }
+        
+        btnStartFlood.setEnabled(isValid);
+        btnStartFlood.setAlpha(isValid ? 1.0f : 0.5f);
+    }
+    
+    private void vibrateSuccess() {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(50, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                vibrator.vibrate(50);
+            }
+        }
+    }
+    
+    private void vibrateFailed() {
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (vibrator != null && vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                long[] pattern = {0, 100, 50, 100};
+                vibrator.vibrate(VibrationEffect.createWaveform(pattern, -1));
+            } else {
+                long[] pattern = {0, 100, 50, 100};
+                vibrator.vibrate(pattern, -1);
+            }
+        }
     }
     
     private void addFailureInfo(String icon, String title, String description) {
@@ -901,6 +976,36 @@ public class MainActivity extends Activity {
         dialog.setCancelable(true);
 
         Button btnClose = dialog.findViewById(R.id.btn_close_about);
+        Button btnEmail = dialog.findViewById(R.id.btn_contact_email);
+        Button btnWa = dialog.findViewById(R.id.btn_contact_wa);
+        
+        btnEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("mailto:xyraofficialsup@gmail.com"));
+                intent.putExtra(Intent.EXTRA_SUBJECT, "XyraPanel Support");
+                try {
+                    startActivity(Intent.createChooser(intent, "Kirim Email"));
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Tidak ada aplikasi email", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        
+        btnWa.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("https://wa.me/+62895325844493"));
+                try {
+                    startActivity(intent);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Tidak dapat membuka WhatsApp", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
