@@ -34,6 +34,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
 import android.os.Handler;
+import android.animation.ValueAnimator;
+import android.animation.ArgbEvaluator;
+import android.view.animation.AccelerateDecelerateInterpolator;
 
 public class MainActivity extends Activity {
 
@@ -43,9 +46,9 @@ public class MainActivity extends Activity {
     private String appTitle = "XyraPanel";
     private int charIndex = 0;
     private boolean isTyping = true;
-    private static final int TYPING_DELAY = 150;
-    private static final int DELETE_DELAY = 100;
-    private static final int PAUSE_DELAY = 2000;
+    private static final int TYPING_DELAY = 120;
+    private static final int PAUSE_DELAY = 2500;
+    private ValueAnimator colorAnimator;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
     private Button btnSms, btnWhatsapp;
@@ -623,7 +626,27 @@ public class MainActivity extends Activity {
         charIndex = 0;
         isTyping = true;
         tvAppTitle.setText("");
+        tvAppTitle.setAlpha(1f);
         typingHandler.post(typingRunnable);
+        startColorAnimation();
+    }
+
+    private void startColorAnimation() {
+        int colorCyan = Color.parseColor("#00D4FF");
+        int colorBlue = Color.parseColor("#007AFF");
+        int colorPurple = Color.parseColor("#8B5CF6");
+        
+        colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorCyan, colorBlue, colorPurple, colorCyan);
+        colorAnimator.setDuration(3000);
+        colorAnimator.setRepeatCount(ValueAnimator.INFINITE);
+        colorAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animator) {
+                tvAppTitle.setTextColor((int) animator.getAnimatedValue());
+            }
+        });
+        colorAnimator.start();
     }
 
     private Runnable typingRunnable = new Runnable() {
@@ -631,11 +654,10 @@ public class MainActivity extends Activity {
         public void run() {
             if (isTyping) {
                 if (charIndex <= appTitle.length()) {
-                    tvAppTitle.setText(appTitle.substring(0, charIndex) + "|");
+                    tvAppTitle.setText(appTitle.substring(0, charIndex));
                     charIndex++;
                     typingHandler.postDelayed(this, TYPING_DELAY);
                 } else {
-                    tvAppTitle.setText(appTitle);
                     typingHandler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -647,12 +669,8 @@ public class MainActivity extends Activity {
             } else {
                 if (charIndex > 0) {
                     charIndex--;
-                    if (charIndex > 0) {
-                        tvAppTitle.setText(appTitle.substring(0, charIndex) + "|");
-                    } else {
-                        tvAppTitle.setText("|");
-                    }
-                    typingHandler.postDelayed(this, DELETE_DELAY);
+                    tvAppTitle.setText(appTitle.substring(0, charIndex));
+                    typingHandler.postDelayed(this, TYPING_DELAY / 2);
                 } else {
                     typingHandler.postDelayed(new Runnable() {
                         @Override
@@ -660,7 +678,7 @@ public class MainActivity extends Activity {
                             isTyping = true;
                             typingHandler.post(typingRunnable);
                         }
-                    }, PAUSE_DELAY / 2);
+                    }, PAUSE_DELAY / 3);
                 }
             }
         }
@@ -670,5 +688,8 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         typingHandler.removeCallbacks(typingRunnable);
+        if (colorAnimator != null) {
+            colorAnimator.cancel();
+        }
     }
 }
