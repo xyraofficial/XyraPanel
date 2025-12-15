@@ -26,6 +26,11 @@ XyraPanel/
 
 ## Recent Changes (December 15, 2025)
 
+### Latest Fix
+- **FIXED**: About dialog layout issue - dialog was too narrow causing text to wrap vertically
+  - Set dialog width to 90% of screen width using WindowManager.LayoutParams
+  - Added click handlers for Email and WhatsApp contact buttons
+
 ### New Features Added
 - **Navigation Bar (Toolbar)**: Header dengan tombol menu hamburger
 - **Sidebar (Navigation Drawer)**: Menu geser dari kiri dengan opsi:

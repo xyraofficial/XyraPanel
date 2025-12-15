@@ -1127,8 +1127,16 @@ public class MainActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
+        // Set dialog width to 90% of screen width
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        
         Button btnClose = (Button) dialog.findViewById(R.id.btn_close_about);
         Button btnReport = (Button) dialog.findViewById(R.id.btn_report_problem);
+        Button btnContactEmail = (Button) dialog.findViewById(R.id.btn_contact_email);
+        Button btnContactWa = (Button) dialog.findViewById(R.id.btn_contact_wa);
         
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1147,7 +1155,41 @@ public class MainActivity extends Activity {
             });
         }
         
+        if (btnContactEmail != null) {
+            btnContactEmail.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+                    emailIntent.setData(Uri.parse("mailto:xyraofficialsup@gmail.com"));
+                    emailIntent.putExtra(Intent.EXTRA_SUBJECT, "XyraPanel - Inquiry");
+                    try {
+                        startActivity(Intent.createChooser(emailIntent, "Kirim Email"));
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Tidak ada aplikasi email", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        
+        if (btnContactWa != null) {
+            btnContactWa.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String phoneNumber = "62895325844493";
+                    String message = "Halo, saya ingin bertanya tentang XyraPanel.";
+                    try {
+                        Intent waIntent = new Intent(Intent.ACTION_VIEW);
+                        waIntent.setData(Uri.parse("https://wa.me/" + phoneNumber + "?text=" + Uri.encode(message)));
+                        startActivity(waIntent);
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "WhatsApp tidak tersedia", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private void showPrivacyDialog() {
