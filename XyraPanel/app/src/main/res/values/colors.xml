@@ -16,4 +16,5 @@
     <color name="errorColor">#FF3B30</color>
     <color name="warningColor">#FF9500</color>
     <color name="shadowColor">#1A000000</color>
+    <color name="dividerColor">#E5E5EA</color>
 </resources>

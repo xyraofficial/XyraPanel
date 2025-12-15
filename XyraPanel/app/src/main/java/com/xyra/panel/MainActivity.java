@@ -2,10 +2,13 @@ package com.xyra.panel;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -16,6 +19,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.core.app.NotificationCompat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -42,6 +49,9 @@ public class MainActivity extends Activity {
     private String selectedProvider = "whatsapp";
     private static final String PREFS_NAME = "XyraPanelPrefs";
     private static final String KEY_PRIVACY_ACCEPTED = "privacy_accepted";
+    private static final String KEY_HISTORY = "send_history";
+    private static final String CHANNEL_ID = "xyra_channel";
+    private Button btnHistory, btnAbout;
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -174,14 +184,19 @@ public class MainActivity extends Activity {
             btnStartFlood.setText("MULAI KIRIM");
             btnStartFlood.setBackgroundResource(R.drawable.button_primary);
 
+            String phone = etTargetPhone.getText().toString().trim();
+            saveHistory(phone, totalSuccesses, totalFailures, selectedProvider);
+
             if (wasCancelled) {
                 statusDot.setBackgroundResource(R.drawable.dot_orange);
                 tvStatusTitle.setText("Stopped");
                 tvStatusTitle.setTextColor(getResources().getColor(R.color.warningColor));
+                showNotification("Pengiriman Dihentikan", "Berhasil: " + totalSuccesses + ", Gagal: " + totalFailures);
             } else {
                 statusDot.setBackgroundResource(R.drawable.dot_green);
                 tvStatusTitle.setText("Completed");
                 tvStatusTitle.setTextColor(getResources().getColor(R.color.successColor));
+                showNotification("Pengiriman Selesai", "Berhasil: " + totalSuccesses + ", Gagal: " + totalFailures);
             }
 
             currentTask = null;
@@ -266,6 +281,24 @@ public class MainActivity extends Activity {
             }
         });
 
+        btnHistory = findViewById(R.id.btn_history);
+        btnAbout = findViewById(R.id.btn_about);
+
+        btnHistory.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showHistoryDialog();
+            }
+        });
+
+        btnAbout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAboutDialog();
+            }
+        });
+
+        createNotificationChannel();
         checkPrivacyPolicy();
     }
 
@@ -385,5 +418,92 @@ public class MainActivity extends Activity {
             btnSms.setBackgroundResource(R.drawable.button_quick);
             btnSms.setTextColor(getResources().getColor(R.color.colorPrimary));
         }
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                CHANNEL_ID,
+                "Xyra Panel Notifications",
+                NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channel.setDescription("Notifikasi pengiriman OTP");
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
+    }
+
+    private void showNotification(String title, String message) {
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_launcher)
+            .setContentTitle(title)
+            .setContentText(message)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true);
+        manager.notify(1, builder.build());
+    }
+
+    private void saveHistory(String phone, int success, int failed, String provider) {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String history = prefs.getString(KEY_HISTORY, "");
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
+        String timestamp = sdf.format(new Date());
+        String entry = timestamp + " | " + phone + " | " + provider.toUpperCase() + " | Berhasil: " + success + ", Gagal: " + failed + "\n";
+        history = entry + history;
+        if (history.length() > 5000) {
+            history = history.substring(0, 5000);
+        }
+        prefs.edit().putString(KEY_HISTORY, history).apply();
+    }
+
+    private void showHistoryDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_history);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        TextView tvContent = dialog.findViewById(R.id.tv_history_content);
+        Button btnClear = dialog.findViewById(R.id.btn_clear_history);
+        Button btnClose = dialog.findViewById(R.id.btn_close_history);
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        String history = prefs.getString(KEY_HISTORY, "");
+        tvContent.setText(history.isEmpty() ? "Belum ada riwayat pengiriman" : history);
+
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                prefs.edit().putString(KEY_HISTORY, "").apply();
+                tvContent.setText("Belum ada riwayat pengiriman");
+                Toast.makeText(MainActivity.this, "Riwayat dihapus", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void showAboutDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_about);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+
+        Button btnClose = dialog.findViewById(R.id.btn_close_about);
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+        dialog.show();
     }
 }
