@@ -1141,39 +1141,43 @@ public class MainActivity extends Activity {
             } else {
                 LinearLayout headerRow = new LinearLayout(this);
                 headerRow.setOrientation(LinearLayout.HORIZONTAL);
-                headerRow.setPadding(12, 12, 12, 12);
+                headerRow.setPadding(8, 10, 8, 10);
                 headerRow.setBackgroundColor(getResources().getColor(R.color.cardBackground));
                 
                 TextView hNo = new TextView(this);
                 hNo.setText("No");
                 hNo.setTextColor(getResources().getColor(R.color.textTertiary));
-                hNo.setTextSize(11);
+                hNo.setTextSize(10);
                 hNo.setTypeface(null, android.graphics.Typeface.BOLD);
-                LinearLayout.LayoutParams noParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+                hNo.setSingleLine(true);
+                LinearLayout.LayoutParams noParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f);
                 hNo.setLayoutParams(noParams);
                 
                 TextView hPhone = new TextView(this);
                 hPhone.setText("Nomor");
                 hPhone.setTextColor(getResources().getColor(R.color.textTertiary));
-                hPhone.setTextSize(11);
+                hPhone.setTextSize(10);
                 hPhone.setTypeface(null, android.graphics.Typeface.BOLD);
-                LinearLayout.LayoutParams phoneParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.5f);
+                hPhone.setSingleLine(true);
+                LinearLayout.LayoutParams phoneParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.8f);
                 hPhone.setLayoutParams(phoneParams);
                 
                 TextView hProvider = new TextView(this);
                 hProvider.setText("Via");
                 hProvider.setTextColor(getResources().getColor(R.color.textTertiary));
-                hProvider.setTextSize(11);
+                hProvider.setTextSize(10);
                 hProvider.setTypeface(null, android.graphics.Typeface.BOLD);
-                LinearLayout.LayoutParams provParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f);
+                hProvider.setSingleLine(true);
+                LinearLayout.LayoutParams provParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
                 hProvider.setLayoutParams(provParams);
                 
                 TextView hResult = new TextView(this);
                 hResult.setText("Hasil");
                 hResult.setTextColor(getResources().getColor(R.color.textTertiary));
-                hResult.setTextSize(11);
+                hResult.setTextSize(10);
                 hResult.setTypeface(null, android.graphics.Typeface.BOLD);
-                LinearLayout.LayoutParams resultParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f);
+                hResult.setSingleLine(true);
+                LinearLayout.LayoutParams resultParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
                 hResult.setLayoutParams(resultParams);
                 
                 headerRow.addView(hNo);
@@ -1195,43 +1199,48 @@ public class MainActivity extends Activity {
                     
                     LinearLayout itemLayout = new LinearLayout(this);
                     itemLayout.setOrientation(LinearLayout.HORIZONTAL);
-                    itemLayout.setPadding(12, 14, 12, 14);
+                    itemLayout.setPadding(8, 12, 8, 12);
                     itemLayout.setGravity(Gravity.CENTER_VERTICAL);
                     
                     if (rowNum % 2 == 0) {
                         itemLayout.setBackgroundColor(0x10FFFFFF);
                     }
                     
-                    String provider = entry.optString("provider", "sms").toUpperCase();
+                    String providerRaw = entry.optString("provider", "sms");
+                    String provider = providerRaw.equalsIgnoreCase("whatsapp") ? "WA" : "SMS";
                     int successCount = entry.getInt("success");
                     int failedCount = entry.getInt("failed");
                     
                     TextView tvNo = new TextView(this);
                     tvNo.setText(String.valueOf(rowNum));
                     tvNo.setTextColor(getResources().getColor(R.color.textTertiary));
-                    tvNo.setTextSize(12);
-                    LinearLayout.LayoutParams noP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
+                    tvNo.setTextSize(11);
+                    tvNo.setSingleLine(true);
+                    LinearLayout.LayoutParams noP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.6f);
                     tvNo.setLayoutParams(noP);
                     
                     TextView tvPhone = new TextView(this);
                     tvPhone.setText(entry.getString("phone"));
                     tvPhone.setTextColor(getResources().getColor(R.color.textPrimary));
-                    tvPhone.setTextSize(13);
-                    LinearLayout.LayoutParams phoneP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.5f);
+                    tvPhone.setTextSize(12);
+                    tvPhone.setSingleLine(true);
+                    LinearLayout.LayoutParams phoneP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 2.8f);
                     tvPhone.setLayoutParams(phoneP);
                     
                     TextView tvProvider = new TextView(this);
                     tvProvider.setText(provider);
                     tvProvider.setTextColor(provider.equals("SMS") ? getResources().getColor(R.color.iosBlue) : getResources().getColor(R.color.iosGreen));
-                    tvProvider.setTextSize(11);
-                    LinearLayout.LayoutParams provP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.2f);
+                    tvProvider.setTextSize(10);
+                    tvProvider.setSingleLine(true);
+                    LinearLayout.LayoutParams provP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
                     tvProvider.setLayoutParams(provP);
                     
                     TextView tvResult = new TextView(this);
                     tvResult.setText(successCount + "/" + (successCount + failedCount));
                     tvResult.setTextColor(getResources().getColor(R.color.textSecondary));
-                    tvResult.setTextSize(12);
-                    LinearLayout.LayoutParams resultP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f);
+                    tvResult.setTextSize(11);
+                    tvResult.setSingleLine(true);
+                    LinearLayout.LayoutParams resultP = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 0.8f);
                     tvResult.setLayoutParams(resultP);
                     
                     itemLayout.addView(tvNo);
@@ -1384,6 +1393,15 @@ public class MainActivity extends Activity {
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     btnAccept.setEnabled(isChecked);
                     btnAccept.setAlpha(isChecked ? 1.0f : 0.5f);
+                }
+            });
+        }
+        
+        if (btnAccept != null) {
+            btnAccept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
                 }
             });
         }

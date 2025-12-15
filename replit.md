@@ -36,6 +36,8 @@ XyraPanel/
   - Added column headers: No, Nomor, Via, Hasil
   - Alternating row colors for better readability
   - Compact display showing success/total count
+  - Single line text (no wrapping) for clean appearance
+  - Provider shows "SMS" or "WA" (abbreviated)
 
 - **REMOVED**: History and About buttons from main screen
   - Bottom buttons removed for cleaner UI
