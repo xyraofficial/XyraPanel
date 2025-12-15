@@ -22,6 +22,11 @@ XyraPanel/
 ```
 
 ## Recent Changes (December 15, 2025)
+- Restructured main layout header to horizontal compact design with avatar on left
+- Moved app version badge (v1.0) to header right side
+- Reduced margins and padding across all cards for better space utilization
+- Removed bottom version text (now in header)
+- All elements now visible on screen without excessive scrolling
 - Added btn_history and btn_about buttons to activity_main.xml
 - Fixed "variable must be final" error in showHistoryDialog()
 - Added AndroidX core dependency for NotificationCompat
