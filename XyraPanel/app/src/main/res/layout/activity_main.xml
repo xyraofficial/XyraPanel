@@ -9,62 +9,84 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:paddingBottom="100dp">
+        android:paddingBottom="24dp">
 
+        <!-- Compact Header -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:background="@color/colorPrimary"
-            android:gravity="center_horizontal"
-            android:paddingTop="24dp"
-            android:paddingBottom="30dp"
+            android:gravity="center_vertical"
+            android:paddingTop="16dp"
+            android:paddingBottom="16dp"
             android:paddingLeft="16dp"
             android:paddingRight="16dp">
 
             <LinearLayout
-                android:layout_width="70dp"
-                android:layout_height="70dp"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="@drawable/icon_background"
                 android:gravity="center"
-                android:layout_marginBottom="12dp">
+                android:layout_marginRight="14dp">
 
                 <ImageView
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
                     android:src="@drawable/ic_launcher"
                     android:scaleType="fitCenter" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Xyra Panel"
+                    android:textColor="#FFFFFF"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ACC OTP Sender"
+                    android:textColor="#B3FFFFFF"
+                    android:textSize="12sp"
+                    android:layout_marginTop="2dp" />
 
             </LinearLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Xyra Panel"
-                android:textColor="#FFFFFF"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="ACC OTP Sender"
-                android:textColor="#B3FFFFFF"
-                android:textSize="14sp"
-                android:layout_marginTop="2dp" />
+                android:text="v1.0"
+                android:textColor="#80FFFFFF"
+                android:textSize="11sp"
+                android:background="@drawable/status_background"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp" />
 
         </LinearLayout>
 
+        <!-- Input Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="-20dp"
+            android:layout_marginTop="12dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/card_background"
-            android:padding="16dp"
+            android:padding="14dp"
             android:elevation="4dp">
 
             <TextView
@@ -75,7 +97,7 @@
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.08"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <EditText
                 android:id="@+id/et_target_phone"
@@ -91,7 +113,7 @@
                 android:maxLength="15"
                 android:drawableLeft="@drawable/ic_sms"
                 android:drawablePadding="10dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="12dp" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -101,7 +123,7 @@
                 android:textSize="11sp"
                 android:textStyle="bold"
                 android:letterSpacing="0.08"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <EditText
                 android:id="@+id/et_jumlah_kirim"
@@ -118,15 +140,16 @@
 
         </LinearLayout>
 
+        <!-- Quick Select Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/card_background"
-            android:padding="16dp"
+            android:padding="14dp"
             android:elevation="4dp">
 
             <TextView
@@ -136,13 +159,13 @@
                 android:textColor="@color/textTertiary"
                 android:textSize="10sp"
                 android:letterSpacing="0.1"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="12dp">
 
                 <Button
                     android:id="@+id/btn_quick_1"
@@ -200,7 +223,7 @@
                 android:textColor="@color/textTertiary"
                 android:textSize="10sp"
                 android:letterSpacing="0.1"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="8dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -234,28 +257,30 @@
 
         </LinearLayout>
 
+        <!-- Start Button -->
         <Button
             android:id="@+id/btn_start_flood"
             android:layout_width="match_parent"
-            android:layout_height="54dp"
+            android:layout_height="50dp"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/button_primary"
             android:text="MULAI KIRIM"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <!-- Status Card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:layout_marginLeft="16dp"
             android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/card_background"
-            android:padding="16dp"
+            android:padding="14dp"
             android:elevation="4dp">
 
             <LinearLayout
@@ -263,7 +288,7 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <View
                     android:id="@+id/status_dot"
@@ -300,7 +325,7 @@
                 android:max="100"
                 android:progress="0"
                 android:progressDrawable="@drawable/progress_background"
-                android:layout_marginBottom="14dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone" />
 
             <LinearLayout
@@ -315,8 +340,8 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp"
-                    android:layout_marginRight="8dp">
+                    android:padding="10dp"
+                    android:layout_marginRight="6dp">
 
                     <TextView
                         android:id="@+id/tv_stat_success"
@@ -324,7 +349,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/successColor"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -332,7 +357,7 @@
                         android:layout_height="wrap_content"
                         android:text="Berhasil"
                         android:textColor="@color/textSecondary"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                 </LinearLayout>
 
@@ -343,8 +368,8 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp"
-                    android:layout_marginRight="8dp">
+                    android:padding="10dp"
+                    android:layout_marginRight="6dp">
 
                     <TextView
                         android:id="@+id/tv_stat_failed"
@@ -352,7 +377,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/errorColor"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -360,7 +385,7 @@
                         android:layout_height="wrap_content"
                         android:text="Gagal"
                         android:textColor="@color/textSecondary"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                 </LinearLayout>
 
@@ -371,7 +396,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp">
+                    android:padding="10dp">
 
                     <TextView
                         android:id="@+id/tv_stat_avg"
@@ -379,7 +404,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="22sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -387,7 +412,7 @@
                         android:layout_height="wrap_content"
                         android:text="ms"
                         android:textColor="@color/textSecondary"
-                        android:textSize="11sp" />
+                        android:textSize="10sp" />
 
                 </LinearLayout>
 
@@ -395,47 +420,38 @@
 
         </LinearLayout>
 
+        <!-- Footer Buttons -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="12dp">
+            android:layout_marginRight="16dp">
 
             <Button
                 android:id="@+id/btn_history"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_quick"
                 android:text="RIWAYAT"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold"
                 android:layout_marginRight="8dp" />
 
             <Button
                 android:id="@+id/btn_about"
                 android:layout_width="0dp"
-                android:layout_height="46dp"
+                android:layout_height="44dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_quick"
                 android:text="TENTANG"
                 android:textColor="@color/colorPrimary"
-                android:textSize="14sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
         </LinearLayout>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Xyra Panel v1.0"
-            android:textColor="@color/textTertiary"
-            android:textSize="12sp"
-            android:layout_marginBottom="16dp" />
 
     </LinearLayout>
 
