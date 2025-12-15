@@ -33,10 +33,19 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
+import android.os.Handler;
 
 public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
+    private TextView tvAppTitle;
+    private Handler typingHandler = new Handler();
+    private String appTitle = "XyraPanel";
+    private int charIndex = 0;
+    private boolean isTyping = true;
+    private static final int TYPING_DELAY = 150;
+    private static final int DELETE_DELAY = 100;
+    private static final int PAUSE_DELAY = 2000;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
     private Button btnSms, btnWhatsapp;
@@ -287,6 +296,9 @@ public class MainActivity extends Activity {
 
         btnHistory = findViewById(R.id.btn_history);
         btnAbout = findViewById(R.id.btn_about);
+        tvAppTitle = findViewById(R.id.tv_app_title);
+
+        startTypingAnimation();
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -605,5 +617,58 @@ public class MainActivity extends Activity {
         });
 
         dialog.show();
+    }
+
+    private void startTypingAnimation() {
+        charIndex = 0;
+        isTyping = true;
+        tvAppTitle.setText("");
+        typingHandler.post(typingRunnable);
+    }
+
+    private Runnable typingRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (isTyping) {
+                if (charIndex <= appTitle.length()) {
+                    tvAppTitle.setText(appTitle.substring(0, charIndex) + "|");
+                    charIndex++;
+                    typingHandler.postDelayed(this, TYPING_DELAY);
+                } else {
+                    tvAppTitle.setText(appTitle);
+                    typingHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            isTyping = false;
+                            typingHandler.post(typingRunnable);
+                        }
+                    }, PAUSE_DELAY);
+                }
+            } else {
+                if (charIndex > 0) {
+                    charIndex--;
+                    if (charIndex > 0) {
+                        tvAppTitle.setText(appTitle.substring(0, charIndex) + "|");
+                    } else {
+                        tvAppTitle.setText("|");
+                    }
+                    typingHandler.postDelayed(this, DELETE_DELAY);
+                } else {
+                    typingHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            isTyping = true;
+                            typingHandler.post(typingRunnable);
+                        }
+                    }, PAUSE_DELAY / 2);
+                }
+            }
+        }
+    };
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        typingHandler.removeCallbacks(typingRunnable);
     }
 }
