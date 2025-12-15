@@ -22,11 +22,13 @@ public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
     private Button btnStartFlood;
-    private Button btnQuick5, btnQuick10, btnQuick25, btnQuickRandom;
+    private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
     private ProgressBar progressBar;
     private TextView tvStatus, tvStatusTitle;
     private TextView tvStatSuccess, tvStatFailed, tvStatAvg;
     private View statusDot;
+
+    private static final int MAX_SEND = 5;
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -176,9 +178,9 @@ public class MainActivity extends Activity {
         etTargetPhone = findViewById(R.id.et_target_phone);
         etJumlahKirim = findViewById(R.id.et_jumlah_kirim);
         btnStartFlood = findViewById(R.id.btn_start_flood);
+        btnQuick1 = findViewById(R.id.btn_quick_1);
+        btnQuick3 = findViewById(R.id.btn_quick_3);
         btnQuick5 = findViewById(R.id.btn_quick_5);
-        btnQuick10 = findViewById(R.id.btn_quick_10);
-        btnQuick25 = findViewById(R.id.btn_quick_25);
         btnQuickRandom = findViewById(R.id.btn_quick_random);
         progressBar = findViewById(R.id.progress_bar);
         tvStatus = findViewById(R.id.tv_status);
@@ -188,6 +190,20 @@ public class MainActivity extends Activity {
         tvStatAvg = findViewById(R.id.tv_stat_avg);
         statusDot = findViewById(R.id.status_dot);
 
+        btnQuick1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etJumlahKirim.setText("1");
+            }
+        });
+
+        btnQuick3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etJumlahKirim.setText("3");
+            }
+        });
+
         btnQuick5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -195,25 +211,11 @@ public class MainActivity extends Activity {
             }
         });
 
-        btnQuick10.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                etJumlahKirim.setText("10");
-            }
-        });
-
-        btnQuick25.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                etJumlahKirim.setText("25");
-            }
-        });
-
         btnQuickRandom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Random rand = new Random();
-                int randomNum = rand.nextInt(10) + 1;
+                int randomNum = rand.nextInt(MAX_SEND) + 1;
                 etJumlahKirim.setText(String.valueOf(randomNum));
             }
         });
@@ -231,8 +233,8 @@ public class MainActivity extends Activity {
                     }
 
                     int jumlahKirim = Integer.parseInt(jumlahStr);
-                    if (jumlahKirim < 1 || jumlahKirim > 100) {
-                        Toast.makeText(MainActivity.this, "Jumlah harus 1-100!", Toast.LENGTH_SHORT).show();
+                    if (jumlahKirim < 1 || jumlahKirim > MAX_SEND) {
+                        Toast.makeText(MainActivity.this, "Jumlah harus 1-" + MAX_SEND + "!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
@@ -256,9 +258,9 @@ public class MainActivity extends Activity {
     }
 
     private void enableQuickButtons(boolean enabled) {
+        btnQuick1.setEnabled(enabled);
+        btnQuick3.setEnabled(enabled);
         btnQuick5.setEnabled(enabled);
-        btnQuick10.setEnabled(enabled);
-        btnQuick25.setEnabled(enabled);
         btnQuickRandom.setEnabled(enabled);
     }
 }
