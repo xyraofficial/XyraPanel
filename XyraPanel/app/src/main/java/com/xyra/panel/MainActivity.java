@@ -41,6 +41,8 @@ import android.net.Uri;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.view.WindowManager;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -75,6 +77,8 @@ public class MainActivity extends Activity {
     private LinearLayout navDrawer;
     private ImageButton btnMenu;
     private boolean isDrawerOpen = false;
+    private GestureDetector gestureDetector;
+    private View rootLayout;
 
     private AccFloodTask currentTask;
     private boolean isRunning = false;
@@ -473,6 +477,64 @@ public class MainActivity extends Activity {
         
         setupInputValidation();
         updateButtonState();
+        setupSwipeGesture();
+    }
+    
+    private void setupSwipeGesture() {
+        rootLayout = findViewById(R.id.root_layout);
+        
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            private static final int SWIPE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+            private static final int EDGE_SIZE = 50;
+            
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null) return false;
+                
+                float diffX = e2.getX() - e1.getX();
+                float diffY = e2.getY() - e1.getY();
+                
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            // Swipe right - open drawer only if started from left edge
+                            if (e1.getX() < EDGE_SIZE * getResources().getDisplayMetrics().density) {
+                                openDrawer();
+                                return true;
+                            }
+                        } else {
+                            // Swipe left - close drawer
+                            if (isDrawerOpen) {
+                                closeDrawer();
+                                return true;
+                            }
+                        }
+                    }
+                }
+                return false;
+            }
+        });
+        
+        if (rootLayout != null) {
+            rootLayout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    return gestureDetector.onTouchEvent(event);
+                }
+            });
+        }
+    }
+    
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        if (gestureDetector != null && !isRunning) {
+            boolean handled = gestureDetector.onTouchEvent(event);
+            if (handled && (isDrawerOpen || event.getX() < 50 * getResources().getDisplayMetrics().density)) {
+                return true;
+            }
+        }
+        return super.dispatchTouchEvent(event);
     }
     
     private void openDrawer() {
@@ -590,6 +652,12 @@ public class MainActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
+        // Set dialog width to 90% of screen width
+        final WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        
         final EditText etReportMessage = (EditText) dialog.findViewById(R.id.et_report_message);
         Button btnSendReport = (Button) dialog.findViewById(R.id.btn_send_report);
         Button btnCancelReport = (Button) dialog.findViewById(R.id.btn_cancel_report);
@@ -619,6 +687,7 @@ public class MainActivity extends Activity {
         });
         
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private class SendReportTask extends AsyncTask<String, Void, Boolean> {
@@ -792,6 +861,12 @@ public class MainActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
+        // Set dialog width to 90% of screen width
+        final WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        
         TextView tvFailureCount = (TextView) dialog.findViewById(R.id.tv_failure_count);
         LinearLayout layoutItems = (LinearLayout) dialog.findViewById(R.id.layout_failure_items);
         Button btnClear = (Button) dialog.findViewById(R.id.btn_clear_failures);
@@ -854,6 +929,7 @@ public class MainActivity extends Activity {
         });
         
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc, String time) {
@@ -1042,6 +1118,12 @@ public class MainActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
+        // Set dialog width to 90% of screen width
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        
         final LinearLayout layoutItems = (LinearLayout) dialog.findViewById(R.id.layout_history_items);
         Button btnClear = (Button) dialog.findViewById(R.id.btn_clear_history);
         Button btnClose = (Button) dialog.findViewById(R.id.btn_close_history);
@@ -1053,37 +1135,74 @@ public class MainActivity extends Activity {
             JSONArray historyArray = new JSONArray(historyJson);
             
             if (historyArray.length() == 0) {
+                LinearLayout emptyLayout = new LinearLayout(this);
+                emptyLayout.setOrientation(LinearLayout.VERTICAL);
+                emptyLayout.setGravity(Gravity.CENTER);
+                emptyLayout.setPadding(0, 60, 0, 60);
+                
+                TextView emptyIcon = new TextView(this);
+                emptyIcon.setText("📋");
+                emptyIcon.setTextSize(36);
+                emptyIcon.setGravity(Gravity.CENTER);
+                
                 TextView emptyText = new TextView(this);
-                emptyText.setText("Belum ada riwayat");
+                emptyText.setText("Belum ada riwayat pengiriman");
                 emptyText.setTextColor(getResources().getColor(R.color.textSecondary));
-                emptyText.setPadding(0, 20, 0, 20);
-                layoutItems.addView(emptyText);
+                emptyText.setTextSize(14);
+                emptyText.setGravity(Gravity.CENTER);
+                emptyText.setPadding(0, 12, 0, 0);
+                
+                emptyLayout.addView(emptyIcon);
+                emptyLayout.addView(emptyText);
+                layoutItems.addView(emptyLayout);
             } else {
                 for (int i = historyArray.length() - 1; i >= 0; i--) {
                     JSONObject entry = historyArray.getJSONObject(i);
                     
                     LinearLayout itemLayout = new LinearLayout(this);
-                    itemLayout.setOrientation(LinearLayout.VERTICAL);
-                    itemLayout.setPadding(0, 12, 0, 12);
+                    itemLayout.setOrientation(LinearLayout.HORIZONTAL);
+                    itemLayout.setPadding(12, 14, 12, 14);
+                    itemLayout.setGravity(Gravity.CENTER_VERTICAL);
+                    
+                    String provider = entry.optString("provider", "sms").toUpperCase();
+                    int successCount = entry.getInt("success");
+                    int failedCount = entry.getInt("failed");
+                    
+                    TextView tvProviderBadge = new TextView(this);
+                    tvProviderBadge.setText(provider);
+                    tvProviderBadge.setTextColor(provider.equals("SMS") ? getResources().getColor(R.color.iosBlue) : getResources().getColor(R.color.iosGreen));
+                    tvProviderBadge.setTextSize(10);
+                    tvProviderBadge.setPadding(12, 6, 12, 6);
+                    tvProviderBadge.setBackgroundResource(R.drawable.chip_unselected);
+                    
+                    LinearLayout infoLayout = new LinearLayout(this);
+                    infoLayout.setOrientation(LinearLayout.VERTICAL);
+                    infoLayout.setPadding(14, 0, 0, 0);
+                    LinearLayout.LayoutParams infoParams = new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1);
+                    infoLayout.setLayoutParams(infoParams);
                     
                     TextView tvPhone = new TextView(this);
                     tvPhone.setText(entry.getString("phone"));
                     tvPhone.setTextColor(getResources().getColor(R.color.textPrimary));
-                    tvPhone.setTextSize(14);
+                    tvPhone.setTextSize(15);
+                    tvPhone.setTypeface(null, android.graphics.Typeface.BOLD);
                     
-                    TextView tvDetails = new TextView(this);
-                    String provider = entry.optString("provider", "sms").toUpperCase();
-                    tvDetails.setText(provider + " | Berhasil: " + entry.getInt("success") + " | Gagal: " + entry.getInt("failed"));
-                    tvDetails.setTextColor(getResources().getColor(R.color.textSecondary));
-                    tvDetails.setTextSize(12);
+                    TextView tvStats = new TextView(this);
+                    tvStats.setText("✓ " + successCount + "  ✗ " + failedCount);
+                    tvStats.setTextColor(getResources().getColor(R.color.textSecondary));
+                    tvStats.setTextSize(12);
+                    tvStats.setPadding(0, 4, 0, 0);
+                    
+                    infoLayout.addView(tvPhone);
+                    infoLayout.addView(tvStats);
                     
                     TextView tvTime = new TextView(this);
                     tvTime.setText(entry.getString("time"));
                     tvTime.setTextColor(getResources().getColor(R.color.textTertiary));
                     tvTime.setTextSize(11);
                     
-                    itemLayout.addView(tvPhone);
-                    itemLayout.addView(tvDetails);
+                    itemLayout.addView(tvProviderBadge);
+                    itemLayout.addView(infoLayout);
                     itemLayout.addView(tvTime);
                     
                     layoutItems.addView(itemLayout);
@@ -1093,6 +1212,7 @@ public class MainActivity extends Activity {
                         divider.setBackgroundColor(getResources().getColor(R.color.divider));
                         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT, 1);
+                        params.setMargins(12, 0, 12, 0);
                         divider.setLayoutParams(params);
                         layoutItems.addView(divider);
                     }
@@ -1119,6 +1239,7 @@ public class MainActivity extends Activity {
         });
         
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private void showAboutDialog() {
@@ -1200,6 +1321,12 @@ public class MainActivity extends Activity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
         
+        // Set dialog width to 90% of screen width
+        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        
         Button btnClose = (Button) dialog.findViewById(R.id.btn_close_privacy);
         
         if (btnClose != null) {
@@ -1212,6 +1339,7 @@ public class MainActivity extends Activity {
         }
         
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private void checkPrivacyPolicy() {
@@ -1229,6 +1357,12 @@ public class MainActivity extends Activity {
         dialog.setContentView(R.layout.dialog_privacy);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(false);
+        
+        // Set dialog width to 90% of screen width
+        final WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+        lp.copyFrom(dialog.getWindow().getAttributes());
+        lp.width = (int) (getResources().getDisplayMetrics().widthPixels * 0.9);
+        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
         
         final CheckBox cbAccept = (CheckBox) dialog.findViewById(R.id.cb_accept_privacy);
         final Button btnAccept = (Button) dialog.findViewById(R.id.btn_accept_privacy);
@@ -1268,6 +1402,7 @@ public class MainActivity extends Activity {
         }
         
         dialog.show();
+        dialog.getWindow().setAttributes(lp);
     }
     
     private void createNotificationChannel() {

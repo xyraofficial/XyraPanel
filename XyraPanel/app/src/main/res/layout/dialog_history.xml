@@ -12,23 +12,38 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="20dp">
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Send History"
-            android:textColor="@color/textPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send History"
+                android:textColor="@color/textPrimary"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recent sending activities"
+                android:textColor="@color/textTertiary"
+                android:textSize="12sp"
+                android:layout_marginTop="4dp" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/btn_clear_history"
             android:layout_width="wrap_content"
-            android:layout_height="36dp"
+            android:layout_height="40dp"
             android:background="@drawable/button_ios_danger"
-            android:text="Clear"
+            android:text="Clear All"
             android:textColor="#FFFFFF"
             android:textSize="12sp"
             android:textAllCaps="false"
@@ -36,6 +51,12 @@
             android:paddingRight="16dp" />
 
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/divider"
+        android:layout_marginBottom="16dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,9 +66,11 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="220dp"
+            android:layout_height="280dp"
             android:padding="12dp"
-            android:scrollbars="none">
+            android:scrollbars="vertical"
+            android:scrollbarStyle="insideOverlay"
+            android:fadeScrollbars="false">
 
             <LinearLayout
                 android:id="@+id/layout_history_items"
@@ -62,12 +85,12 @@
     <Button
         android:id="@+id/btn_close_history"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/button_ios_primary"
         android:text="Close"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textAllCaps="false" />
 

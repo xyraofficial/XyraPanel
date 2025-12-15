@@ -26,10 +26,22 @@ XyraPanel/
 
 ## Recent Changes (December 15, 2025)
 
-### Latest Fix
-- **FIXED**: About dialog layout issue - dialog was too narrow causing text to wrap vertically
-  - Set dialog width to 90% of screen width using WindowManager.LayoutParams
-  - Added click handlers for Email and WhatsApp contact buttons
+### Latest Fixes (December 15, 2025)
+- **FIXED**: All dialog layouts - dialogs were too narrow causing text to wrap vertically
+  - Set all dialog widths to 90% of screen width using WindowManager.LayoutParams
+  - Affected dialogs: About, History, Privacy, Report Problem, Failure Info
+  
+- **NEW**: Swipe gesture to open sidebar
+  - Swipe from left edge of screen to right to open navigation drawer
+  - Swipe left anywhere to close drawer when open
+  - Uses GestureDetector with dispatchTouchEvent for smooth handling
+
+- **IMPROVED**: History dialog UI
+  - Added professional header with subtitle
+  - Enhanced history items with provider badge (SMS/WhatsApp)
+  - Better empty state with icon
+  - Improved layout with horizontal card design
+  - Added visual separators and better spacing
 
 ### New Features Added
 - **Navigation Bar (Toolbar)**: Header dengan tombol menu hamburger
