@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             totalKirim = Integer.parseInt(params[1]);
 
             String urlStr = "https://www.acc.co.id/register/new-account";
-            String phoneWith0 = "0" + targetPhone;
+            String phoneWith0 = targetPhone.startsWith("0") ? targetPhone : "0" + targetPhone;
 
             for (int i = 1; i <= totalKirim; i++) {
                 if (isCancelled()) break;

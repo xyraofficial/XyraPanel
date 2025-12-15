@@ -13,20 +13,12 @@
         android:gravity="center_horizontal"
         android:layout_marginBottom="20dp">
 
-        <FrameLayout
+        <ImageView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:background="@drawable/icon_background"
-            android:layout_marginBottom="16dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="🔒"
-                android:textSize="28sp" />
-
-        </FrameLayout>
+            android:src="@drawable/ic_launcher"
+            android:scaleType="fitCenter"
+            android:layout_marginBottom="16dp" />
 
         <TextView
             android:layout_width="wrap_content"
