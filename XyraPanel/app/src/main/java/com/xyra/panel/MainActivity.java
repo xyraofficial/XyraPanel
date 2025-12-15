@@ -19,7 +19,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.core.app.NotificationCompat;
+import android.app.Notification;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -435,11 +435,15 @@ public class MainActivity extends Activity {
 
     private void showNotification(String title, String message) {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setSmallIcon(R.drawable.ic_launcher)
+        Notification.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(this, CHANNEL_ID);
+        } else {
+            builder = new Notification.Builder(this);
+        }
+        builder.setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true);
         manager.notify(1, builder.build());
     }
