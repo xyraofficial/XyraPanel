@@ -3,8 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/dialog_background"
-    android:padding="24dp">
+    android:background="@drawable/dialog_ios"
+    android:padding="24dp"
+    android:layout_margin="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,8 +17,8 @@
         <ImageView
             android:layout_width="64dp"
             android:layout_height="64dp"
-            android:src="@drawable/ic_launcher"
-            android:scaleType="fitCenter"
+            android:src="@drawable/logo"
+            android:scaleType="centerCrop"
             android:layout_marginBottom="16dp" />
 
         <TextView
@@ -32,26 +33,26 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Sebelum menggunakan aplikasi"
-            android:textColor="@color/textSecondary"
+            android:text="Before using the application"
+            android:textColor="@color/textTertiary"
             android:textSize="14sp" />
 
     </LinearLayout>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="180dp"
-        android:background="@drawable/input_background"
+        android:layout_height="200dp"
+        android:background="@drawable/stat_card_ios"
         android:padding="16dp"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dengan menggunakan aplikasi Xyra Panel, Anda menyetujui ketentuan berikut:\n\n1. PENGGUNAAN\nAplikasi ini disediakan untuk tujuan edukasi dan pengujian. Pengguna bertanggung jawab penuh atas penggunaan aplikasi.\n\n2. PRIVASI DATA\nKami tidak menyimpan data pribadi Anda. Semua data yang dimasukkan hanya digunakan untuk proses pengiriman.\n\n3. TANGGUNG JAWAB\nPengembang tidak bertanggung jawab atas penyalahgunaan aplikasi. Gunakan dengan bijak dan sesuai hukum yang berlaku.\n\n4. PERSETUJUAN\nDengan mencentang kotak persetujuan, Anda menyatakan telah membaca dan menyetujui seluruh ketentuan di atas."
+            android:text="By using XyraPanel, you agree to the following terms:\n\n1. USAGE\nThis app is provided for educational and testing purposes. Users are fully responsible for their use of the app.\n\n2. DATA PRIVACY\nWe do not store your personal data. All data entered is only used for the sending process.\n\n3. LIABILITY\nThe developer is not responsible for misuse of the app. Use wisely and in accordance with applicable laws.\n\n4. CONSENT\nBy checking the consent box, you confirm that you have read and agree to all the terms above."
             android:textColor="@color/textSecondary"
             android:textSize="13sp"
-            android:lineSpacingMultiplier="1.3" />
+            android:lineSpacingExtra="4dp" />
 
     </ScrollView>
 
@@ -60,20 +61,20 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:background="@drawable/stat_background"
-        android:padding="14dp"
+        android:background="@drawable/stat_card_ios"
+        android:padding="16dp"
         android:layout_marginBottom="20dp">
 
         <CheckBox
             android:id="@+id/cb_accept_privacy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:buttonTint="@color/colorPrimary" />
+            android:buttonTint="@color/iosBlue" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Saya telah membaca dan menyetujui Privacy Policy"
+            android:text="I have read and agree to the Privacy Policy"
             android:textColor="@color/textPrimary"
             android:textSize="13sp"
             android:layout_marginLeft="8dp" />
@@ -83,24 +84,25 @@
     <Button
         android:id="@+id/btn_accept_privacy"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@drawable/button_primary"
-        android:text="LANJUTKAN"
+        android:layout_height="52dp"
+        android:background="@drawable/button_ios_primary"
+        android:text="Continue"
         android:textColor="#FFFFFF"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textStyle="bold"
+        android:textAllCaps="false"
         android:enabled="false"
         android:alpha="0.5" />
 
     <Button
         android:id="@+id/btn_close_privacy"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="48dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/button_quick"
-        android:text="TUTUP"
-        android:textColor="@color/colorPrimary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:background="@drawable/button_ios_secondary"
+        android:text="Close"
+        android:textColor="@color/textSecondary"
+        android:textSize="15sp"
+        android:textAllCaps="false" />
 
 </LinearLayout>

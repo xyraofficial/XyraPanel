@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="320dp"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/dialog_background"
-    android:padding="16dp">
+    android:background="@drawable/dialog_ios"
+    android:padding="24dp"
+    android:layout_margin="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="14dp">
+        android:layout_marginBottom="16dp">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Riwayat Pengiriman"
+            android:text="Send History"
             android:textColor="@color/textPrimary"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_clear_history"
             android:layout_width="wrap_content"
-            android:layout_height="30dp"
-            android:background="@drawable/button_stop"
-            android:text="HAPUS"
+            android:layout_height="36dp"
+            android:background="@drawable/button_ios_danger"
+            android:text="Clear"
             android:textColor="#FFFFFF"
-            android:textSize="10sp"
-            android:textStyle="bold"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp" />
+            android:textSize="12sp"
+            android:textAllCaps="false"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/input_background"
-        android:padding="2dp">
+        android:background="@drawable/stat_card_ios"
+        android:padding="4dp">
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:padding="10dp"
-            android:scrollbars="vertical">
+            android:layout_height="220dp"
+            android:padding="12dp"
+            android:scrollbars="none">
 
             <LinearLayout
                 android:id="@+id/layout_history_items"
@@ -62,12 +62,13 @@
     <Button
         android:id="@+id/btn_close_history"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:layout_marginTop="14dp"
-        android:background="@drawable/button_primary"
-        android:text="TUTUP"
+        android:layout_height="50dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/button_ios_primary"
+        android:text="Close"
         android:textColor="#FFFFFF"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:textAllCaps="false" />
 
 </LinearLayout>

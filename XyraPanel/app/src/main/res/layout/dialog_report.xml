@@ -3,41 +3,42 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/dialog_background"
-    android:padding="20dp"
+    android:background="@drawable/dialog_ios"
+    android:padding="24dp"
     android:layout_margin="24dp">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Laporkan Masalah"
+        android:text="Report Issue"
         android:textColor="@color/textPrimary"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="8dp" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Jelaskan masalah yang Anda alami. Laporan akan dikirim otomatis ke tim support."
-        android:textColor="@color/textSecondary"
-        android:textSize="13sp"
-        android:layout_marginBottom="16dp" />
+        android:text="Describe the issue you're experiencing. Your report will be sent automatically."
+        android:textColor="@color/textTertiary"
+        android:textSize="14sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="20dp" />
 
     <EditText
         android:id="@+id/et_report_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="120dp"
-        android:background="@drawable/input_background"
-        android:padding="14dp"
-        android:hint="Tulis masalah Anda di sini..."
-        android:textSize="14sp"
+        android:minHeight="140dp"
+        android:background="@drawable/input_ios"
+        android:padding="16dp"
+        android:hint="Write your issue here..."
+        android:textSize="15sp"
         android:textColor="@color/textPrimary"
         android:textColorHint="@color/textTertiary"
         android:inputType="textMultiLine"
         android:gravity="top|start"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="20dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -47,25 +48,27 @@
         <Button
             android:id="@+id/btn_cancel_report"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
-            android:background="@drawable/button_cancel"
-            android:text="BATAL"
+            android:background="@drawable/button_ios_secondary"
+            android:text="Cancel"
             android:textColor="@color/textSecondary"
-            android:textSize="14sp"
+            android:textSize="16sp"
             android:textStyle="bold"
-            android:layout_marginRight="8dp" />
+            android:textAllCaps="false"
+            android:layout_marginRight="12dp" />
 
         <Button
             android:id="@+id/btn_send_report"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="50dp"
             android:layout_weight="1"
-            android:background="@drawable/button_primary"
-            android:text="KIRIM"
+            android:background="@drawable/button_ios_primary"
+            android:text="Send"
             android:textColor="#FFFFFF"
-            android:textSize="14sp"
-            android:textStyle="bold" />
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 

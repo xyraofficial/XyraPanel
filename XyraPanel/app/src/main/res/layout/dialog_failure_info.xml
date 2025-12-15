@@ -3,8 +3,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:background="@drawable/dialog_background"
-    android:padding="20dp">
+    android:background="@drawable/dialog_ios"
+    android:padding="24dp"
+    android:layout_margin="24dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,9 +15,9 @@
         android:layout_marginBottom="16dp">
 
         <LinearLayout
-            android:layout_width="44dp"
-            android:layout_height="44dp"
-            android:background="@drawable/warning_icon_bg"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/chip_unselected"
             android:gravity="center">
 
             <TextView
@@ -25,7 +26,7 @@
                 android:text="!"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="#FFFFFF" />
+                android:textColor="@color/iosOrange" />
 
         </LinearLayout>
 
@@ -34,23 +35,23 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_marginLeft="12dp">
+            android:layout_marginLeft="16dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="INFO KEGAGALAN"
-                android:textSize="16sp"
+                android:text="Failure Info"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                android:textColor="@color/errorColor" />
+                android:textColor="@color/textPrimary" />
 
             <TextView
                 android:id="@+id/tv_failure_count"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="0 masalah terdeteksi"
-                android:textSize="12sp"
-                android:textColor="@color/textSecondary" />
+                android:text="0 issues detected"
+                android:textSize="13sp"
+                android:textColor="@color/textTertiary" />
 
         </LinearLayout>
 
@@ -59,13 +60,13 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/dividerColor"
+        android:background="@color/divider"
         android:layout_marginBottom="12dp" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:maxHeight="300dp">
+        android:maxHeight="280dp">
 
         <LinearLayout
             android:id="@+id/layout_failure_items"
@@ -78,7 +79,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/dividerColor"
+        android:background="@color/divider"
         android:layout_marginTop="12dp"
         android:layout_marginBottom="16dp" />
 
@@ -90,25 +91,26 @@
         <Button
             android:id="@+id/btn_clear_failures"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/button_quick"
-            android:text="HAPUS"
-            android:textColor="@color/colorPrimary"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:layout_marginRight="8dp" />
+            android:background="@drawable/button_ios_secondary"
+            android:text="Clear"
+            android:textColor="@color/textPrimary"
+            android:textSize="15sp"
+            android:textAllCaps="false"
+            android:layout_marginRight="10dp" />
 
         <Button
             android:id="@+id/btn_close_failures"
             android:layout_width="0dp"
-            android:layout_height="44dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/button_primary"
-            android:text="TUTUP"
+            android:background="@drawable/button_ios_primary"
+            android:text="Close"
             android:textColor="#FFFFFF"
-            android:textSize="13sp"
-            android:textStyle="bold" />
+            android:textSize="15sp"
+            android:textStyle="bold"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 
