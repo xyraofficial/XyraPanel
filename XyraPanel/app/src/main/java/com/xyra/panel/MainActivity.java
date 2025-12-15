@@ -27,6 +27,7 @@ public class MainActivity extends Activity {
     private EditText etTargetPhone, etJumlahKirim;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
+    private Button btnSms, btnWhatsapp;
     private ProgressBar progressBar;
     private TextView tvStatusTitle;
     private TextView tvStatSuccess, tvStatFailed, tvStatAvg;
@@ -35,6 +36,7 @@ public class MainActivity extends Activity {
     private AccFloodTask currentTask;
     private boolean isRunning = false;
     private static final int MAX_SEND = 5;
+    private String selectedProvider = "whatsapp";
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -77,7 +79,7 @@ public class MainActivity extends Activity {
                     payload.put("user_id", JSONObject.NULL);
                     payload.put("action", "register");
                     payload.put("send_to", phoneWith0);
-                    payload.put("provider", "whatsapp");
+                    payload.put("provider", selectedProvider);
                     jsonArray.put(payload);
 
                     String jsonData = jsonArray.toString();
@@ -193,6 +195,8 @@ public class MainActivity extends Activity {
         btnQuick3 = findViewById(R.id.btn_quick_3);
         btnQuick5 = findViewById(R.id.btn_quick_5);
         btnQuickRandom = findViewById(R.id.btn_quick_random);
+        btnSms = findViewById(R.id.btn_sms);
+        btnWhatsapp = findViewById(R.id.btn_whatsapp);
         progressBar = findViewById(R.id.progress_bar);
         tvStatusTitle = findViewById(R.id.tv_status_title);
         tvStatSuccess = findViewById(R.id.tv_stat_success);
@@ -227,6 +231,20 @@ public class MainActivity extends Activity {
                 Random rand = new Random();
                 int randomNum = rand.nextInt(MAX_SEND) + 1;
                 etJumlahKirim.setText(String.valueOf(randomNum));
+            }
+        });
+
+        btnSms.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectProvider("sms");
+            }
+        });
+
+        btnWhatsapp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                selectProvider("whatsapp");
             }
         });
 
@@ -301,5 +319,22 @@ public class MainActivity extends Activity {
         btnQuick3.setEnabled(enabled);
         btnQuick5.setEnabled(enabled);
         btnQuickRandom.setEnabled(enabled);
+        btnSms.setEnabled(enabled);
+        btnWhatsapp.setEnabled(enabled);
+    }
+
+    private void selectProvider(String provider) {
+        selectedProvider = provider;
+        if (provider.equals("sms")) {
+            btnSms.setBackgroundResource(R.drawable.button_quick_accent);
+            btnSms.setTextColor(getResources().getColor(android.R.color.white));
+            btnWhatsapp.setBackgroundResource(R.drawable.button_quick);
+            btnWhatsapp.setTextColor(getResources().getColor(R.color.colorPrimary));
+        } else {
+            btnWhatsapp.setBackgroundResource(R.drawable.button_quick_accent);
+            btnWhatsapp.setTextColor(getResources().getColor(android.R.color.white));
+            btnSms.setBackgroundResource(R.drawable.button_quick);
+            btnSms.setTextColor(getResources().getColor(R.color.colorPrimary));
+        }
     }
 }
