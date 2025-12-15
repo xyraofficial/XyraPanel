@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -51,6 +53,8 @@ public class MainActivity extends Activity {
     private static final String KEY_PRIVACY_ACCEPTED = "privacy_accepted";
     private static final String KEY_HISTORY = "send_history";
     private static final String CHANNEL_ID = "xyra_channel";
+    private static final String ACTION_SHOW_HISTORY = "com.xyra.panel.SHOW_HISTORY";
+    private static final int NOTIFICATION_ID = 1001;
     private Button btnHistory, btnAbout;
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
@@ -300,6 +304,20 @@ public class MainActivity extends Activity {
 
         createNotificationChannel();
         checkPrivacyPolicy();
+        
+        handleNotificationIntent(getIntent());
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNotificationIntent(intent);
+    }
+    
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && ACTION_SHOW_HISTORY.equals(intent.getAction())) {
+            showHistoryDialog();
+        }
     }
 
     private void checkPrivacyPolicy() {
@@ -435,6 +453,17 @@ public class MainActivity extends Activity {
 
     private void showNotification(String title, String message) {
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(ACTION_SHOW_HISTORY);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flags |= PendingIntent.FLAG_IMMUTABLE;
+        }
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, flags);
+        
         Notification.Builder builder;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder = new Notification.Builder(this, CHANNEL_ID);
@@ -444,8 +473,9 @@ public class MainActivity extends Activity {
         builder.setSmallIcon(R.drawable.ic_launcher)
             .setContentTitle(title)
             .setContentText(message)
+            .setContentIntent(pendingIntent)
             .setAutoCancel(true);
-        manager.notify(1, builder.build());
+        manager.notify(NOTIFICATION_ID, builder.build());
     }
 
     private void saveHistory(String phone, int success, int failed, String provider) {
@@ -467,20 +497,33 @@ public class MainActivity extends Activity {
         dialog.setContentView(R.layout.dialog_history);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-        TextView tvContent = dialog.findViewById(R.id.tv_history_content);
+        final TextView tvContent = dialog.findViewById(R.id.tv_history_content);
+        final TextView tvTotalEntries = dialog.findViewById(R.id.tv_total_entries);
+        final TextView tvTotalSuccess = dialog.findViewById(R.id.tv_total_success);
+        final TextView tvTotalFailed = dialog.findViewById(R.id.tv_total_failed);
         Button btnClear = dialog.findViewById(R.id.btn_clear_history);
         Button btnClose = dialog.findViewById(R.id.btn_close_history);
 
         final SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String history = prefs.getString(KEY_HISTORY, "");
-        final TextView tvContentFinal = tvContent;
-        tvContent.setText(history.isEmpty() ? "Belum ada riwayat pengiriman" : history);
+        
+        updateHistoryStats(history, tvTotalEntries, tvTotalSuccess, tvTotalFailed);
+        
+        if (history.isEmpty()) {
+            tvContent.setText("Belum ada riwayat pengiriman");
+        } else {
+            String formattedHistory = formatHistoryDisplay(history);
+            tvContent.setText(formattedHistory);
+        }
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prefs.edit().putString(KEY_HISTORY, "").apply();
-                tvContentFinal.setText("Belum ada riwayat pengiriman");
+                tvContent.setText("Belum ada riwayat pengiriman");
+                tvTotalEntries.setText("0");
+                tvTotalSuccess.setText("0");
+                tvTotalFailed.setText("0");
                 Toast.makeText(MainActivity.this, "Riwayat dihapus", Toast.LENGTH_SHORT).show();
             }
         });
@@ -493,6 +536,58 @@ public class MainActivity extends Activity {
         });
 
         dialog.show();
+    }
+    
+    private void updateHistoryStats(String history, TextView tvEntries, TextView tvSuccess, TextView tvFailed) {
+        if (history.isEmpty()) {
+            tvEntries.setText("0");
+            tvSuccess.setText("0");
+            tvFailed.setText("0");
+            return;
+        }
+        
+        String[] lines = history.split("\n");
+        int totalEntries = 0;
+        int totalSuccess = 0;
+        int totalFailed = 0;
+        
+        for (String line : lines) {
+            if (line.trim().isEmpty()) continue;
+            totalEntries++;
+            
+            try {
+                if (line.contains("Berhasil:")) {
+                    int startSuccess = line.indexOf("Berhasil:") + 9;
+                    int endSuccess = line.indexOf(",", startSuccess);
+                    if (endSuccess > startSuccess) {
+                        String successStr = line.substring(startSuccess, endSuccess).trim();
+                        totalSuccess += Integer.parseInt(successStr);
+                    }
+                }
+                if (line.contains("Gagal:")) {
+                    int startFailed = line.indexOf("Gagal:") + 6;
+                    String failedStr = line.substring(startFailed).trim();
+                    totalFailed += Integer.parseInt(failedStr);
+                }
+            } catch (Exception e) {
+            }
+        }
+        
+        tvEntries.setText(String.valueOf(totalEntries));
+        tvSuccess.setText(String.valueOf(totalSuccess));
+        tvFailed.setText(String.valueOf(totalFailed));
+    }
+    
+    private String formatHistoryDisplay(String history) {
+        String[] lines = history.split("\n");
+        StringBuilder formatted = new StringBuilder();
+        
+        for (String line : lines) {
+            if (line.trim().isEmpty()) continue;
+            formatted.append("▸ ").append(line).append("\n\n");
+        }
+        
+        return formatted.toString().trim();
     }
 
     private void showAboutDialog() {
