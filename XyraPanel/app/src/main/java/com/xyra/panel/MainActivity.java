@@ -30,6 +30,7 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.content.pm.PackageManager;
 import android.content.Context;
+import android.view.inputmethod.InputMethodManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -452,21 +453,31 @@ public class MainActivity extends Activity {
         Button btnClear = dialog.findViewById(R.id.btn_clear_failures);
         Button btnClose = dialog.findViewById(R.id.btn_close_failures);
         
-        tvFailureCount.setText(failureList.size() + " masalah terdeteksi");
+        String currentTime = new SimpleDateFormat("HH:mm", Locale.getDefault()).format(new Date());
+        
+        int totalIssues = failureList.size();
+        if (isVpnActive()) totalIssues++;
+        if (isPacketCaptureAppInstalled()) totalIssues++;
+        if (!isNetworkAvailable()) totalIssues++;
+        
+        tvFailureCount.setText(totalIssues + " masalah terdeteksi");
         
         if (isVpnActive()) {
-            addFailureItemToLayout(layoutItems, "V", "VPN Terdeteksi", "VPN aktif dapat mengganggu koneksi");
+            addFailureItemToLayout(layoutItems, "V", "VPN Terdeteksi", "VPN aktif dapat mengganggu koneksi", currentTime);
         }
         
         if (isPacketCaptureAppInstalled()) {
-            addFailureItemToLayout(layoutItems, "H", "HTTP Capture Terdeteksi", "Aplikasi capture HTTP/SSL terinstal");
+            addFailureItemToLayout(layoutItems, "H", "HTTP Capture Terdeteksi", "Aplikasi capture HTTP/SSL terinstal", currentTime);
         }
         
         if (!isNetworkAvailable()) {
-            addFailureItemToLayout(layoutItems, "N", "Tidak Ada Jaringan", "Perangkat tidak terhubung ke internet");
+            addFailureItemToLayout(layoutItems, "N", "Tidak Ada Jaringan", "Perangkat tidak terhubung ke internet", currentTime);
         }
         
         for (FailureInfo info : failureList) {
+            if (info.title.equals("Tidak Ada Jaringan") && !isNetworkAvailable()) {
+                continue;
+            }
             addFailureItemToLayout(layoutItems, info.icon, info.title, info.description, info.time);
         }
         
@@ -634,7 +645,17 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
+    private void hideKeyboard() {
+        View view = this.getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+    
     private void startSending() {
+        hideKeyboard();
+        
         try {
             String targetPhone = etTargetPhone.getText().toString().trim();
             String jumlahStr = etJumlahKirim.getText().toString().trim();
