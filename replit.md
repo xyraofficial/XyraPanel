@@ -15,6 +15,7 @@ XyraPanel/
 │   │   ├── res/
 │   │   │   ├── drawable/     - Button styles, icons, backgrounds
 │   │   │   ├── layout/       - Activity dan dialog layouts
+│   │   │   ├── menu/         - Navigation drawer menu
 │   │   │   ├── values/       - Colors, strings, styles
 │   │   │   └── xml/          - Network security config
 │   │   └── AndroidManifest.xml
@@ -24,6 +25,21 @@ XyraPanel/
 ```
 
 ## Recent Changes (December 15, 2025)
+
+### New Features Added
+- **Navigation Bar (Toolbar)**: Header dengan tombol menu hamburger
+- **Sidebar (Navigation Drawer)**: Menu geser dari kiri dengan opsi:
+  - Beranda
+  - Riwayat
+  - Tentang
+  - Laporkan Masalah
+  - Kebijakan Privasi
+- **Laporkan Masalah**: Fitur untuk mengirim email ke developer
+  - Menggunakan Intent Email (aman, tidak perlu password)
+  - Otomatis mengisi info perangkat
+  - Membuka aplikasi email bawaan pengguna
+
+### Previous Fixes
 - **FIXED**: SSL Pin verification failed error (removed invalid cert pinning)
 - **FIXED**: Duplicate "Tidak Ada Jaringan" count issue
 - **FIXED**: Time display now shows correctly in failure info dialog
@@ -46,6 +62,8 @@ XyraPanel/
 - Notifications on completion
 - Failure Info Icon with detailed error list
 - Vibration feedback (ringan saat sukses/gagal)
+- Navigation Drawer dengan menu lengkap
+- Fitur Laporkan Masalah via Email Intent
 
 ### Failure Detection Features
 - VPN Detection
@@ -59,8 +77,11 @@ XyraPanel/
 - WhatsApp: +62895325844493
 
 ## Dependencies
-- No external dependencies (pure Android SDK)
-- VIBRATE permission added
+- AndroidX AppCompat 1.6.1
+- AndroidX Core 1.12.0
+- AndroidX DrawerLayout 1.2.0
+- Google Material Design 1.11.0
+- VIBRATE permission
 
 ## Build Instructions
 This is a native Android project. To build:
@@ -68,3 +89,11 @@ This is a native Android project. To build:
 2. Sync Gradle files
 3. Build APK (Build > Build Bundle(s) / APK(s) > Build APK(s))
 4. Install APK on Android device
+
+## Note About Replit
+Proyek Android native TIDAK BISA dijalankan di Replit karena:
+- Tidak ada Android SDK/Emulator
+- Memerlukan lingkungan build Android (Gradle)
+- APK harus di-install di device Android
+
+Gunakan Android Studio atau AIDE untuk build dan test aplikasi.
