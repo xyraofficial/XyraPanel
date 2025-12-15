@@ -1,7 +1,7 @@
 package com.xyra.panel;
 
 import android.app.Activity;
-import android.os.AsyncTask; 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,8 +14,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.OutputStream;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
@@ -26,19 +24,18 @@ public class MainActivity extends Activity {
     private Button btnStartFlood;
     private ProgressBar progressBar;
     private TextView tvStatus;
-    private View statusIndicator;
 
-    private class AccFloodTask extends AsyncTask<String, Object, String> { 
+    private class AccFloodTask extends AsyncTask<String, Object, String> {
 
         private int totalSuccesses = 0;
         private int totalFailures = 0;
         private long totalDurationMs = 0;
         private int totalKirim = 0;
-        private final int DELAY_SECONDS = 3; 
+        private final int DELAY_SECONDS = 3;
 
         @Override
         protected void onPreExecute() {
-            statusIndicator.setBackgroundResource(R.drawable.status_dot_busy);
+            tvStatus.setText("Memulai proses...");
         }
 
         @Override
@@ -129,7 +126,7 @@ public class MainActivity extends Activity {
         }
 
         @Override
-        protected void onProgressUpdate(Object... values) { 
+        protected void onProgressUpdate(Object... values) {
             progressBar.setProgress((Integer) values[0]);
 
             int current = (Integer) values[1];
@@ -137,21 +134,20 @@ public class MainActivity extends Activity {
             int fail = (Integer) values[3];
             String msg = (String) values[4];
 
-            tvStatus.setText(msg + "\n\nProses: " + current + " dari " + totalKirim + 
-                             "\nBerhasil: " + suc + "  |  Gagal: " + fail);
+            tvStatus.setText(msg + "\n\nProses: " + current + " dari " + totalKirim +
+                    "\nBerhasil: " + suc + "  |  Gagal: " + fail);
         }
 
         @Override
         protected void onPostExecute(String result) {
             progressBar.setVisibility(View.GONE);
             btnStartFlood.setEnabled(true);
-            statusIndicator.setBackgroundResource(R.drawable.status_dot_ready);
 
             float avgTime = (totalKirim > 0) ? (float) totalDurationMs / totalKirim : 0;
 
             String summary = String.format(
-                "Proses selesai!\n\nTotal: %d pengiriman\nBerhasil: %d\nGagal: %d\nRata-rata waktu: %.0f ms",
-                totalKirim, totalSuccesses, totalFailures, avgTime
+                    "Proses selesai!\n\nTotal: %d pengiriman\nBerhasil: %d\nGagal: %d\nRata-rata: %.0f ms",
+                    totalKirim, totalSuccesses, totalFailures, avgTime
             );
             tvStatus.setText(summary);
             Toast.makeText(MainActivity.this, "Proses Selesai!", Toast.LENGTH_LONG).show();
@@ -161,14 +157,13 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); 
+        setContentView(R.layout.activity_main);
 
         etTargetPhone = findViewById(R.id.et_target_phone);
         etJumlahKirim = findViewById(R.id.et_jumlah_kirim);
         btnStartFlood = findViewById(R.id.btn_start_flood);
         progressBar = findViewById(R.id.progress_bar);
         tvStatus = findViewById(R.id.tv_status);
-        statusIndicator = findViewById(R.id.status_indicator);
 
         btnStartFlood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -190,7 +185,6 @@ public class MainActivity extends Activity {
 
                     btnStartFlood.setEnabled(false);
                     progressBar.setVisibility(View.VISIBLE);
-                    tvStatus.setText("Memulai proses...");
 
                     new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
 
