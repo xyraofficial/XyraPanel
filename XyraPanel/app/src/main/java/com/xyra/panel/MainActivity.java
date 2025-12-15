@@ -22,8 +22,11 @@ public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
     private Button btnStartFlood;
+    private Button btnQuick5, btnQuick10, btnQuick25, btnQuickRandom;
     private ProgressBar progressBar;
-    private TextView tvStatus;
+    private TextView tvStatus, tvStatusTitle;
+    private TextView tvStatSuccess, tvStatFailed, tvStatAvg;
+    private View statusDot;
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -35,7 +38,12 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
-            tvStatus.setText("Memulai proses...");
+            statusDot.setBackgroundResource(R.drawable.dot_orange);
+            tvStatusTitle.setText("Sending...");
+            tvStatusTitle.setTextColor(getResources().getColor(R.color.warningColor));
+            tvStatSuccess.setText("0");
+            tvStatFailed.setText("0");
+            tvStatAvg.setText("0ms");
         }
 
         @Override
@@ -93,17 +101,17 @@ public class MainActivity extends Activity {
 
                     if (responseCode == 200) {
                         totalSuccesses++;
-                        statusMsg = "Berhasil - " + duration + "ms";
+                        statusMsg = "Sent #" + i + " - " + duration + "ms";
                     } else {
                         totalFailures++;
-                        statusMsg = "Gagal (HTTP " + responseCode + ") - " + duration + "ms";
+                        statusMsg = "Failed #" + i + " (HTTP " + responseCode + ")";
                     }
 
                 } catch (Exception e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
-                    statusMsg = "Gagal (" + e.getMessage() + ")";
+                    statusMsg = "Error #" + i;
                 } finally {
                     if (conn != null) {
                         conn.disconnect();
@@ -111,7 +119,8 @@ public class MainActivity extends Activity {
                 }
 
                 int progress = (int) ((float) i / totalKirim * 100);
-                publishProgress(progress, i, totalSuccesses, totalFailures, statusMsg);
+                long avgTime = (i > 0) ? totalDurationMs / i : 0;
+                publishProgress(progress, i, totalSuccesses, totalFailures, avgTime, statusMsg);
 
                 if (i < totalKirim) {
                     try {
@@ -132,25 +141,30 @@ public class MainActivity extends Activity {
             int current = (Integer) values[1];
             int suc = (Integer) values[2];
             int fail = (Integer) values[3];
-            String msg = (String) values[4];
+            long avg = (Long) values[4];
+            String msg = (String) values[5];
 
-            tvStatus.setText(msg + "\n\nProses: " + current + " dari " + totalKirim +
-                    "\nBerhasil: " + suc + "  |  Gagal: " + fail);
+            tvStatSuccess.setText(String.valueOf(suc));
+            tvStatFailed.setText(String.valueOf(fail));
+            tvStatAvg.setText(avg + "ms");
+            tvStatus.setText(msg + " (" + current + "/" + totalKirim + ")");
         }
 
         @Override
         protected void onPostExecute(String result) {
             progressBar.setVisibility(View.GONE);
             btnStartFlood.setEnabled(true);
+            enableQuickButtons(true);
 
-            float avgTime = (totalKirim > 0) ? (float) totalDurationMs / totalKirim : 0;
+            statusDot.setBackgroundResource(R.drawable.dot_green);
+            tvStatusTitle.setText("Completed");
+            tvStatusTitle.setTextColor(getResources().getColor(R.color.successColor));
 
-            String summary = String.format(
-                    "Proses selesai!\n\nTotal: %d pengiriman\nBerhasil: %d\nGagal: %d\nRata-rata: %.0f ms",
-                    totalKirim, totalSuccesses, totalFailures, avgTime
-            );
-            tvStatus.setText(summary);
-            Toast.makeText(MainActivity.this, "Proses Selesai!", Toast.LENGTH_LONG).show();
+            long avgTime = (totalKirim > 0) ? totalDurationMs / totalKirim : 0;
+            tvStatAvg.setText(avgTime + "ms");
+
+            tvStatus.setText("Selesai! " + totalSuccesses + " berhasil, " + totalFailures + " gagal");
+            Toast.makeText(MainActivity.this, "Proses Selesai!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -162,8 +176,47 @@ public class MainActivity extends Activity {
         etTargetPhone = findViewById(R.id.et_target_phone);
         etJumlahKirim = findViewById(R.id.et_jumlah_kirim);
         btnStartFlood = findViewById(R.id.btn_start_flood);
+        btnQuick5 = findViewById(R.id.btn_quick_5);
+        btnQuick10 = findViewById(R.id.btn_quick_10);
+        btnQuick25 = findViewById(R.id.btn_quick_25);
+        btnQuickRandom = findViewById(R.id.btn_quick_random);
         progressBar = findViewById(R.id.progress_bar);
         tvStatus = findViewById(R.id.tv_status);
+        tvStatusTitle = findViewById(R.id.tv_status_title);
+        tvStatSuccess = findViewById(R.id.tv_stat_success);
+        tvStatFailed = findViewById(R.id.tv_stat_failed);
+        tvStatAvg = findViewById(R.id.tv_stat_avg);
+        statusDot = findViewById(R.id.status_dot);
+
+        btnQuick5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etJumlahKirim.setText("5");
+            }
+        });
+
+        btnQuick10.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etJumlahKirim.setText("10");
+            }
+        });
+
+        btnQuick25.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                etJumlahKirim.setText("25");
+            }
+        });
+
+        btnQuickRandom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Random rand = new Random();
+                int randomNum = rand.nextInt(10) + 1;
+                etJumlahKirim.setText(String.valueOf(randomNum));
+            }
+        });
 
         btnStartFlood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,12 +232,14 @@ public class MainActivity extends Activity {
 
                     int jumlahKirim = Integer.parseInt(jumlahStr);
                     if (jumlahKirim < 1 || jumlahKirim > 100) {
-                        Toast.makeText(MainActivity.this, "Jumlah harus antara 1-100!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "Jumlah harus 1-100!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
                     btnStartFlood.setEnabled(false);
+                    enableQuickButtons(false);
                     progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setProgress(0);
 
                     new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
 
@@ -193,9 +248,17 @@ public class MainActivity extends Activity {
                 } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
                     btnStartFlood.setEnabled(true);
+                    enableQuickButtons(true);
                     progressBar.setVisibility(View.GONE);
                 }
             }
         });
+    }
+
+    private void enableQuickButtons(boolean enabled) {
+        btnQuick5.setEnabled(enabled);
+        btnQuick10.setEnabled(enabled);
+        btnQuick25.setEnabled(enabled);
+        btnQuickRandom.setEnabled(enabled);
     }
 }

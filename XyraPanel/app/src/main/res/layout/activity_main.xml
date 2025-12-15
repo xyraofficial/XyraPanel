@@ -32,8 +32,7 @@
                     android:text="X"
                     android:textColor="#FFFFFF"
                     android:textSize="32sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-medium" />
+                    android:textStyle="bold" />
 
             </FrameLayout>
 
@@ -41,14 +40,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xyra Panel"
-                style="@style/TitleText"
+                android:textColor="@color/textPrimary"
+                android:textSize="28sp"
+                android:textStyle="bold"
                 android:layout_marginBottom="4dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ACC OTP Sender"
-                style="@style/SubtitleText" />
+                android:textColor="@color/textSecondary"
+                android:textSize="15sp" />
 
         </LinearLayout>
 
@@ -64,15 +66,22 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="NOMOR TARGET"
-                style="@style/LabelText"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05"
                 android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/et_target_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/InputField"
+                android:background="@drawable/input_background"
+                android:padding="14dp"
                 android:hint="Contoh: 812xxxxxxxx"
+                android:textSize="16sp"
+                android:textColor="@color/textPrimary"
+                android:textColorHint="@color/textTertiary"
                 android:inputType="phone"
                 android:maxLength="15"
                 android:layout_marginBottom="20dp" />
@@ -81,26 +90,95 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="JUMLAH PENGIRIMAN"
-                style="@style/LabelText"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:textAllCaps="true"
+                android:letterSpacing="0.05"
                 android:layout_marginBottom="8dp" />
 
             <EditText
                 android:id="@+id/et_jumlah_kirim"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/InputField"
+                android:background="@drawable/input_background"
+                android:padding="14dp"
                 android:hint="Masukkan angka (1-100)"
+                android:textSize="16sp"
+                android:textColor="@color/textPrimary"
+                android:textColorHint="@color/textTertiary"
                 android:inputType="number"
-                android:maxLength="3" />
+                android:maxLength="3"
+                android:layout_marginBottom="12dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="QUICK SELECT"
+                android:textColor="@color/textTertiary"
+                android:textSize="11sp"
+                android:layout_marginBottom="8dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/btn_quick_5"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_quick"
+                    android:text="5"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp" />
+
+                <Button
+                    android:id="@+id/btn_quick_10"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_quick"
+                    android:text="10"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp" />
+
+                <Button
+                    android:id="@+id/btn_quick_25"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/button_quick"
+                    android:text="25"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="14sp"
+                    android:layout_marginRight="8dp" />
+
+                <Button
+                    android:id="@+id/btn_quick_random"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1.5"
+                    android:background="@drawable/button_quick_accent"
+                    android:text="Random"
+                    android:textColor="#FFFFFF"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
         <Button
             android:id="@+id/btn_start_flood"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/PrimaryButton"
+            android:layout_height="56dp"
+            android:background="@drawable/button_primary"
             android:text="Mulai Kirim OTP"
+            android:textColor="#FFFFFF"
+            android:textSize="17sp"
+            android:textStyle="bold"
             android:layout_marginBottom="16dp" />
 
         <LinearLayout
@@ -110,41 +188,152 @@
             android:background="@drawable/card_background"
             android:padding="20dp">
 
-            <TextView
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="STATUS"
-                style="@style/LabelText"
-                android:layout_marginBottom="16dp" />
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
+
+                <View
+                    android:id="@+id/status_dot"
+                    android:layout_width="12dp"
+                    android:layout_height="12dp"
+                    android:background="@drawable/dot_green"
+                    android:layout_marginRight="10dp" />
+
+                <TextView
+                    android:id="@+id/tv_status_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ready"
+                    android:textColor="@color/successColor"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
 
             <ProgressBar
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="8dp"
+                android:layout_height="6dp"
                 android:max="100"
                 android:progress="0"
                 android:progressDrawable="@drawable/progress_background"
                 android:layout_marginBottom="16dp"
                 android:visibility="gone" />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/stat_background"
+                    android:padding="12dp"
+                    android:layout_marginRight="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_stat_success"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/successColor"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Berhasil"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/stat_background"
+                    android:padding="12dp"
+                    android:layout_marginRight="8dp">
+
+                    <TextView
+                        android:id="@+id/tv_stat_failed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0"
+                        android:textColor="@color/errorColor"
+                        android:textSize="24sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Gagal"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:background="@drawable/stat_background"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:id="@+id/tv_stat_avg"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0ms"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="20sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rata-rata"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
             <TextView
                 android:id="@+id/tv_status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                style="@style/StatusText"
-                android:text="Siap mengirim OTP.\nInterval pengiriman: 3 detik." />
+                android:text="Siap mengirim OTP. Interval: 3 detik."
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                android:gravity="center" />
 
         </LinearLayout>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
+            android:layout_marginTop="20dp"
             android:gravity="center"
             android:text="Xyra Panel v1.0"
             android:textColor="@color/textTertiary"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
     </LinearLayout>
 
