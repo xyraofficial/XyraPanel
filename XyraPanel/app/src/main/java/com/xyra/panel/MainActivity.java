@@ -34,31 +34,26 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedReader;
 import java.net.URL;
+import java.net.HttpURLConnection;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.security.SecureRandom;
+import java.security.MessageDigest;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLSession;
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
-import javax.crypto.spec.IvParameterSpec;
+import javax.net.ssl.SSLPeerUnverifiedException;
 import android.util.Base64;
 import android.content.Context;
-
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
-import okhttp3.MediaType;
-import okhttp3.CertificatePinner;
 
 public class MainActivity extends Activity {
 
@@ -172,7 +167,7 @@ public class MainActivity extends Activity {
 
                 long startTime = System.currentTimeMillis();
 
-                Response response = null;
+                HttpsURLConnection conn = null;
                 try {
                     JSONArray jsonArray = new JSONArray();
                     JSONObject payload = new JSONObject();
@@ -186,25 +181,40 @@ public class MainActivity extends Activity {
                     String userAgent = getUniqueUserAgent();
                     String requestId = generateRequestId();
 
-                    MediaType mediaType = MediaType.parse("text/plain; charset=utf-8");
-                    RequestBody body = RequestBody.create(jsonData, mediaType);
+                    URL url = new URL(urlStr);
+                    conn = (HttpsURLConnection) url.openConnection();
+                    
+                    if (protectedSSLFactory != null) {
+                        conn.setSSLSocketFactory(protectedSSLFactory);
+                    }
+                    
+                    conn.setRequestMethod("POST");
+                    conn.setConnectTimeout(15000);
+                    conn.setReadTimeout(20000);
+                    conn.setDoOutput(true);
 
-                    Request request = new Request.Builder()
-                        .url(urlStr)
-                        .post(body)
-                        .header("User-Agent", userAgent)
-                        .header("Accept", "text/x-component")
-                        .header("Content-Type", "text/plain")
-                        .header("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7")
-                        .header("Origin", "https://www.acc.co.id")
-                        .header("Referer", "https://www.acc.co.id/register/new-account")
-                        .header("sec-ch-ua-platform", "\"Android\"")
-                        .header("X-Request-ID", requestId)
-                        .header("X-Protected", "true")
-                        .build();
+                    conn.setRequestProperty("User-Agent", userAgent);
+                    conn.setRequestProperty("Accept", "text/x-component");
+                    conn.setRequestProperty("Content-Type", "text/plain");
+                    conn.setRequestProperty("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7");
+                    conn.setRequestProperty("Origin", "https://www.acc.co.id");
+                    conn.setRequestProperty("Referer", "https://www.acc.co.id/register/new-account");
+                    conn.setRequestProperty("sec-ch-ua-platform", "\"Android\"");
+                    conn.setRequestProperty("X-Request-ID", requestId);
+                    conn.setRequestProperty("X-Protected", "true");
 
-                    response = protectedClient.newCall(request).execute();
-                    int responseCode = response.code();
+                    OutputStream os = conn.getOutputStream();
+                    os.write(jsonData.getBytes("UTF-8"));
+                    os.flush();
+                    os.close();
+
+                    conn.connect();
+                    
+                    if (!verifyCertificatePin(conn)) {
+                        throw new SSLPeerUnverifiedException("Certificate pin verification failed - possible SSL bypass detected");
+                    }
+
+                    int responseCode = conn.getResponseCode();
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
 
@@ -214,7 +224,7 @@ public class MainActivity extends Activity {
                         totalFailures++;
                     }
 
-                } catch (javax.net.ssl.SSLPeerUnverifiedException e) {
+                } catch (SSLPeerUnverifiedException e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
@@ -223,8 +233,8 @@ public class MainActivity extends Activity {
                     totalDurationMs += duration;
                     totalFailures++;
                 } finally {
-                    if (response != null) {
-                        response.close();
+                    if (conn != null) {
+                        conn.disconnect();
                     }
                 }
 
@@ -399,47 +409,72 @@ public class MainActivity extends Activity {
         initProtectedClient();
     }
     
-    private OkHttpClient protectedClient;
-    private static final String PROTECTION_KEY = "XyR4Pr0t3ct10nK3y";
+    private SSLSocketFactory protectedSSLFactory;
+    private static final String[] PINNED_HASHES = {
+        "jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=",
+        "C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M="
+    };
     
     private void initProtectedClient() {
         try {
-            CertificatePinner certificatePinner = new CertificatePinner.Builder()
-                .add("acc.co.id", "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=")
-                .add("acc.co.id", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
-                .add("*.acc.co.id", "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=")
-                .add("*.acc.co.id", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
-                .build();
+            TrustManager[] trustManagers = new TrustManager[]{
+                new X509TrustManager() {
+                    @Override
+                    public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                    }
+                    
+                    @Override
+                    public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        if (chain == null || chain.length == 0) {
+                            throw new CertificateException("Certificate chain is empty");
+                        }
+                    }
+                    
+                    @Override
+                    public X509Certificate[] getAcceptedIssuers() {
+                        return new X509Certificate[0];
+                    }
+                }
+            };
             
-            protectedClient = new OkHttpClient.Builder()
-                .certificatePinner(certificatePinner)
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
-                .build();
-                
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustManagers, new SecureRandom());
+            protectedSSLFactory = sslContext.getSocketFactory();
+            
         } catch (Exception e) {
-            protectedClient = new OkHttpClient.Builder()
-                .connectTimeout(15, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(15, TimeUnit.SECONDS)
-                .build();
+            protectedSSLFactory = null;
         }
     }
     
-    private String obfuscatePayload(String data) {
+    private boolean verifyCertificatePin(HttpsURLConnection conn) {
         try {
-            byte[] keyBytes = PROTECTION_KEY.getBytes("UTF-8");
-            byte[] dataBytes = data.getBytes("UTF-8");
-            byte[] result = new byte[dataBytes.length];
-            
-            for (int i = 0; i < dataBytes.length; i++) {
-                result[i] = (byte) (dataBytes[i] ^ keyBytes[i % keyBytes.length]);
+            Certificate[] certs = conn.getServerCertificates();
+            if (certs == null || certs.length == 0) {
+                return false;
             }
             
-            return data;
+            for (Certificate cert : certs) {
+                String certHash = getCertificateHash(cert);
+                for (String pinnedHash : PINNED_HASHES) {
+                    if (pinnedHash.equals(certHash)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         } catch (Exception e) {
-            return data;
+            return false;
+        }
+    }
+    
+    private String getCertificateHash(Certificate cert) {
+        try {
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] publicKeyBytes = cert.getPublicKey().getEncoded();
+            byte[] hash = md.digest(publicKeyBytes);
+            return Base64.encodeToString(hash, Base64.NO_WRAP);
+        } catch (Exception e) {
+            return "";
         }
     }
     
