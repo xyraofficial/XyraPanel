@@ -33,21 +33,14 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Random;
-import android.os.Handler;
 import android.animation.ValueAnimator;
 import android.animation.ArgbEvaluator;
-import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 public class MainActivity extends Activity {
 
     private EditText etTargetPhone, etJumlahKirim;
     private TextView tvAppTitle;
-    private Handler typingHandler = new Handler();
-    private String appTitle = "XyraPanel";
-    private int charIndex = 0;
-    private boolean isTyping = true;
-    private static final int TYPING_DELAY = 120;
-    private static final int PAUSE_DELAY = 2500;
     private ValueAnimator colorAnimator;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
@@ -300,8 +293,9 @@ public class MainActivity extends Activity {
         btnHistory = findViewById(R.id.btn_history);
         btnAbout = findViewById(R.id.btn_about);
         tvAppTitle = findViewById(R.id.tv_app_title);
+        tvAppTitle.setText("XyraPanel");
 
-        startTypingAnimation();
+        startColorAnimation();
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -622,24 +616,23 @@ public class MainActivity extends Activity {
         dialog.show();
     }
 
-    private void startTypingAnimation() {
-        charIndex = 0;
-        isTyping = true;
-        tvAppTitle.setText("");
-        tvAppTitle.setAlpha(1f);
-        typingHandler.post(typingRunnable);
-        startColorAnimation();
-    }
-
     private void startColorAnimation() {
-        int colorCyan = Color.parseColor("#00D4FF");
-        int colorBlue = Color.parseColor("#007AFF");
-        int colorPurple = Color.parseColor("#8B5CF6");
+        int colorPink = Color.parseColor("#FF1493");
+        int colorOrange = Color.parseColor("#FF6B35");
+        int colorGold = Color.parseColor("#FFD700");
+        int colorGreen = Color.parseColor("#00D084");
+        int colorCyan = Color.parseColor("#00CED1");
+        int colorBlue = Color.parseColor("#4169E1");
+        int colorPurple = Color.parseColor("#9B59B6");
         
-        colorAnimator = ValueAnimator.ofObject(new ArgbEvaluator(), colorCyan, colorBlue, colorPurple, colorCyan);
-        colorAnimator.setDuration(3000);
+        colorAnimator = ValueAnimator.ofObject(
+            new ArgbEvaluator(), 
+            colorPink, colorOrange, colorGold, colorGreen, 
+            colorCyan, colorBlue, colorPurple, colorPink
+        );
+        colorAnimator.setDuration(4000);
         colorAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        colorAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        colorAnimator.setInterpolator(new LinearInterpolator());
         colorAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animator) {
@@ -649,45 +642,9 @@ public class MainActivity extends Activity {
         colorAnimator.start();
     }
 
-    private Runnable typingRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isTyping) {
-                if (charIndex <= appTitle.length()) {
-                    tvAppTitle.setText(appTitle.substring(0, charIndex));
-                    charIndex++;
-                    typingHandler.postDelayed(this, TYPING_DELAY);
-                } else {
-                    typingHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            isTyping = false;
-                            typingHandler.post(typingRunnable);
-                        }
-                    }, PAUSE_DELAY);
-                }
-            } else {
-                if (charIndex > 0) {
-                    charIndex--;
-                    tvAppTitle.setText(appTitle.substring(0, charIndex));
-                    typingHandler.postDelayed(this, TYPING_DELAY / 2);
-                } else {
-                    typingHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            isTyping = true;
-                            typingHandler.post(typingRunnable);
-                        }
-                    }, PAUSE_DELAY / 3);
-                }
-            }
-        }
-    };
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        typingHandler.removeCallbacks(typingRunnable);
         if (colorAnimator != null) {
             colorAnimator.cancel();
         }
