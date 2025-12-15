@@ -40,6 +40,7 @@ import android.os.VibrationEffect;
 import android.net.Uri;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
+import android.view.WindowManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
