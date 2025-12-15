@@ -190,31 +190,33 @@ public class MainActivity extends Activity {
         btnStartFlood.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String targetPhone = etTargetPhone.getText().toString().trim();
-                    String jumlahStr = etJumlahKirim.getText().toString().trim();
-
-                    if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
-                        Toast.makeText(MainActivity.this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
                     try {
+                        String targetPhone = etTargetPhone.getText().toString().trim();
+                        String jumlahStr = etJumlahKirim.getText().toString().trim();
+
+                        if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
+                            Toast.makeText(MainActivity.this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+
                         int jumlahKirim = Integer.parseInt(jumlahStr);
                         if (jumlahKirim < 1 || jumlahKirim > 100) {
                             Toast.makeText(MainActivity.this, "Jumlah harus antara 1-100!", Toast.LENGTH_SHORT).show();
                             return;
                         }
 
-                        // Tampilkan UI sebelum memulai task
                         btnStartFlood.setEnabled(false);
                         progressBar.setVisibility(View.VISIBLE);
                         tvStatus.setText("Status: Memulai proses...");
 
-                        // Mulai proses pengiriman di background
                         new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
 
                     } catch (NumberFormatException e) {
                         Toast.makeText(MainActivity.this, "Jumlah harus angka!", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(MainActivity.this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                        btnStartFlood.setEnabled(true);
+                        progressBar.setVisibility(View.GONE);
                     }
                 }
             });
