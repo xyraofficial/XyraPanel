@@ -26,6 +26,7 @@ public class MainActivity extends Activity {
     private Button btnStartFlood;
     private ProgressBar progressBar;
     private TextView tvStatus;
+    private View statusIndicator;
 
     private class AccFloodTask extends AsyncTask<String, Object, String> { 
 
@@ -37,6 +38,7 @@ public class MainActivity extends Activity {
 
         @Override
         protected void onPreExecute() {
+            statusIndicator.setBackgroundResource(R.drawable.status_dot_busy);
         }
 
         @Override
@@ -94,17 +96,17 @@ public class MainActivity extends Activity {
 
                     if (responseCode == 200) {
                         totalSuccesses++;
-                        statusMsg = "SUCCESS (200 OK) - " + duration + "ms";
+                        statusMsg = "Berhasil - " + duration + "ms";
                     } else {
                         totalFailures++;
-                        statusMsg = "GAGAL (HTTP " + responseCode + ") - " + duration + "ms";
+                        statusMsg = "Gagal (HTTP " + responseCode + ") - " + duration + "ms";
                     }
 
                 } catch (Exception e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
-                    statusMsg = "GAGAL (" + e.getMessage() + ") - " + duration + "ms";
+                    statusMsg = "Gagal (" + e.getMessage() + ")";
                 } finally {
                     if (conn != null) {
                         conn.disconnect();
@@ -135,23 +137,23 @@ public class MainActivity extends Activity {
             int fail = (Integer) values[3];
             String msg = (String) values[4];
 
-            tvStatus.setText("Status: " + msg + "\n" +
-                             "Iterasi: " + current + "/" + totalKirim + 
-                             " | Sukses: " + suc + " | Gagal: " + fail);
+            tvStatus.setText(msg + "\n\nProses: " + current + " dari " + totalKirim + 
+                             "\nBerhasil: " + suc + "  |  Gagal: " + fail);
         }
 
         @Override
         protected void onPostExecute(String result) {
             progressBar.setVisibility(View.GONE);
             btnStartFlood.setEnabled(true);
+            statusIndicator.setBackgroundResource(R.drawable.status_dot_ready);
 
             float avgTime = (totalKirim > 0) ? (float) totalDurationMs / totalKirim : 0;
 
             String summary = String.format(
-                "Selesai!\nTotal: %d\nSukses: %d\nGagal: %d\nRata-rata: %.0f ms",
+                "Proses selesai!\n\nTotal: %d pengiriman\nBerhasil: %d\nGagal: %d\nRata-rata waktu: %.0f ms",
                 totalKirim, totalSuccesses, totalFailures, avgTime
             );
-            tvStatus.setText("Status: " + summary);
+            tvStatus.setText(summary);
             Toast.makeText(MainActivity.this, "Proses Selesai!", Toast.LENGTH_LONG).show();
         }
     }
@@ -166,6 +168,7 @@ public class MainActivity extends Activity {
         btnStartFlood = findViewById(R.id.btn_start_flood);
         progressBar = findViewById(R.id.progress_bar);
         tvStatus = findViewById(R.id.tv_status);
+        statusIndicator = findViewById(R.id.status_indicator);
 
         btnStartFlood.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -187,7 +190,7 @@ public class MainActivity extends Activity {
 
                     btnStartFlood.setEnabled(false);
                     progressBar.setVisibility(View.VISIBLE);
-                    tvStatus.setText("Status: Memulai proses...");
+                    tvStatus.setText("Memulai proses...");
 
                     new AccFloodTask().execute(targetPhone, String.valueOf(jumlahKirim));
 
