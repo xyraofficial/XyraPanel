@@ -11,39 +11,37 @@
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp"
-        android:paddingTop="16dp"
-        android:paddingBottom="32dp">
+        android:paddingTop="12dp"
+        android:paddingBottom="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:gravity="center_horizontal"
-            android:layout_marginTop="8dp"
             android:layout_marginBottom="12dp">
 
             <ImageView
-                android:layout_width="64dp"
-                android:layout_height="64dp"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
                 android:src="@drawable/ic_launcher"
                 android:scaleType="fitCenter"
-                android:layout_marginBottom="10dp" />
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xyra Panel"
                 android:textColor="@color/textPrimary"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="2dp" />
+                android:textSize="22sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="ACC OTP Sender"
                 android:textColor="@color/textSecondary"
-                android:textSize="15sp" />
+                android:textSize="13sp" />
 
         </LinearLayout>
 
@@ -52,113 +50,113 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/card_background"
-            android:padding="16dp"
-            android:layout_marginBottom="12dp">
+            android:padding="14dp"
+            android:layout_marginBottom="10dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="NOMOR TARGET"
                 android:textColor="@color/textSecondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textAllCaps="true"
                 android:letterSpacing="0.05"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <EditText
                 android:id="@+id/et_target_phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/input_background"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:hint="Contoh: 0812xxxxxxxx"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textColor="@color/textPrimary"
                 android:textColorHint="@color/textTertiary"
                 android:inputType="phone"
                 android:maxLength="15"
-                android:layout_marginBottom="20dp" />
+                android:layout_marginBottom="14dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="JUMLAH PENGIRIMAN"
                 android:textColor="@color/textSecondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textAllCaps="true"
                 android:letterSpacing="0.05"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <EditText
                 android:id="@+id/et_jumlah_kirim"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/input_background"
-                android:padding="14dp"
+                android:padding="12dp"
                 android:hint="Masukkan angka (1-5)"
-                android:textSize="16sp"
+                android:textSize="15sp"
                 android:textColor="@color/textPrimary"
                 android:textColorHint="@color/textTertiary"
                 android:inputType="number"
                 android:maxLength="3"
-                android:layout_marginBottom="12dp" />
+                android:layout_marginBottom="10dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="QUICK SELECT"
                 android:textColor="@color/textTertiary"
-                android:textSize="11sp"
-                android:layout_marginBottom="8dp" />
+                android:textSize="10sp"
+                android:layout_marginBottom="6dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="14dp">
 
                 <Button
                     android:id="@+id/btn_quick_1"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:layout_weight="1"
                     android:background="@drawable/button_quick"
                     android:text="1"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginRight="6dp" />
+                    android:layout_marginRight="5dp" />
 
                 <Button
                     android:id="@+id/btn_quick_3"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:layout_weight="1"
                     android:background="@drawable/button_quick"
                     android:text="3"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginRight="6dp" />
+                    android:layout_marginRight="5dp" />
 
                 <Button
                     android:id="@+id/btn_quick_5"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
+                    android:layout_height="38dp"
                     android:layout_weight="1"
                     android:background="@drawable/button_quick"
                     android:text="5"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
-                    android:layout_marginRight="6dp" />
+                    android:layout_marginRight="5dp" />
 
                 <Button
                     android:id="@+id/btn_quick_random"
                     android:layout_width="0dp"
-                    android:layout_height="40dp"
-                    android:layout_weight="1.5"
+                    android:layout_height="38dp"
+                    android:layout_weight="1.3"
                     android:background="@drawable/button_quick_accent"
-                    android:text="Random"
+                    android:text="RANDOM"
                     android:textColor="#FFFFFF"
-                    android:textSize="13sp" />
+                    android:textSize="12sp" />
 
             </LinearLayout>
 
@@ -167,10 +165,10 @@
                 android:layout_height="wrap_content"
                 android:text="PILIH LAYANAN"
                 android:textColor="@color/textSecondary"
-                android:textSize="12sp"
+                android:textSize="11sp"
                 android:textAllCaps="true"
                 android:letterSpacing="0.05"
-                android:layout_marginBottom="8dp" />
+                android:layout_marginBottom="6dp" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -180,19 +178,19 @@
                 <Button
                     android:id="@+id/btn_sms"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:background="@drawable/button_quick"
                     android:text="SMS"
                     android:textColor="@color/colorPrimary"
                     android:textSize="14sp"
                     android:textStyle="bold"
-                    android:layout_marginRight="8dp" />
+                    android:layout_marginRight="6dp" />
 
                 <Button
                     android:id="@+id/btn_whatsapp"
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:background="@drawable/button_quick_accent"
                     android:text="WHATSAPP"
@@ -207,34 +205,35 @@
         <Button
             android:id="@+id/btn_start_flood"
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="50dp"
             android:background="@drawable/button_primary"
             android:text="MULAI KIRIM"
             android:textColor="#FFFFFF"
-            android:textSize="16sp"
+            android:textSize="15sp"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="10dp" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:background="@drawable/card_background"
-            android:padding="20dp">
+            android:padding="14dp"
+            android:layout_marginBottom="10dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginBottom="12dp">
+                android:layout_marginBottom="10dp">
 
                 <View
                     android:id="@+id/status_dot"
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
                     android:background="@drawable/dot_green"
-                    android:layout_marginRight="10dp" />
+                    android:layout_marginRight="8dp" />
 
                 <TextView
                     android:id="@+id/tv_status_title"
@@ -242,7 +241,7 @@
                     android:layout_height="wrap_content"
                     android:text="Ready"
                     android:textColor="@color/successColor"
-                    android:textSize="14sp"
+                    android:textSize="13sp"
                     android:textStyle="bold" />
 
             </LinearLayout>
@@ -251,18 +250,17 @@
                 android:id="@+id/progress_bar"
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="match_parent"
-                android:layout_height="6dp"
+                android:layout_height="5dp"
                 android:max="100"
                 android:progress="0"
                 android:progressDrawable="@drawable/progress_background"
-                android:layout_marginBottom="16dp"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginBottom="12dp">
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -271,8 +269,8 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp"
-                    android:layout_marginRight="8dp">
+                    android:padding="10dp"
+                    android:layout_marginRight="6dp">
 
                     <TextView
                         android:id="@+id/tv_stat_success"
@@ -280,7 +278,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/successColor"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -288,7 +286,7 @@
                         android:layout_height="wrap_content"
                         android:text="Berhasil"
                         android:textColor="@color/textSecondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
 
                 </LinearLayout>
 
@@ -299,8 +297,8 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp"
-                    android:layout_marginRight="8dp">
+                    android:padding="10dp"
+                    android:layout_marginRight="6dp">
 
                     <TextView
                         android:id="@+id/tv_stat_failed"
@@ -308,7 +306,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/errorColor"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -316,7 +314,7 @@
                         android:layout_height="wrap_content"
                         android:text="Gagal"
                         android:textColor="@color/textSecondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
 
                 </LinearLayout>
 
@@ -327,7 +325,7 @@
                     android:orientation="vertical"
                     android:gravity="center"
                     android:background="@drawable/stat_background"
-                    android:padding="12dp">
+                    android:padding="10dp">
 
                     <TextView
                         android:id="@+id/tv_stat_avg"
@@ -335,7 +333,7 @@
                         android:layout_height="wrap_content"
                         android:text="0"
                         android:textColor="@color/colorPrimary"
-                        android:textSize="24sp"
+                        android:textSize="20sp"
                         android:textStyle="bold" />
 
                     <TextView
@@ -343,7 +341,7 @@
                         android:layout_height="wrap_content"
                         android:text="Rata-rata"
                         android:textColor="@color/textSecondary"
-                        android:textSize="12sp" />
+                        android:textSize="11sp" />
 
                 </LinearLayout>
 
@@ -355,25 +353,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="12dp"
             android:layout_marginBottom="8dp">
 
             <Button
                 android:id="@+id/btn_history"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_quick"
                 android:text="RIWAYAT"
                 android:textColor="@color/colorPrimary"
                 android:textSize="13sp"
                 android:textStyle="bold"
-                android:layout_marginRight="8dp" />
+                android:layout_marginRight="6dp" />
 
             <Button
                 android:id="@+id/btn_about"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="42dp"
                 android:layout_weight="1"
                 android:background="@drawable/button_quick"
                 android:text="TENTANG"
@@ -386,12 +383,10 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="16dp"
             android:gravity="center"
             android:text="Xyra Panel v1.0"
             android:textColor="@color/textTertiary"
-            android:textSize="12sp" />
+            android:textSize="11sp" />
 
     </LinearLayout>
 

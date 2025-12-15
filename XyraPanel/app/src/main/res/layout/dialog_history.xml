@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center_vertical"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="14dp">
 
         <TextView
             android:layout_width="0dp"
@@ -25,14 +25,14 @@
         <Button
             android:id="@+id/btn_clear_history"
             android:layout_width="wrap_content"
-            android:layout_height="32dp"
+            android:layout_height="30dp"
             android:background="@drawable/button_stop"
             android:text="HAPUS"
             android:textColor="#FFFFFF"
-            android:textSize="11sp"
+            android:textSize="10sp"
             android:textStyle="bold"
-            android:paddingLeft="12dp"
-            android:paddingRight="12dp" />
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp" />
 
     </LinearLayout>
 
@@ -40,7 +40,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="12dp">
+        android:layout_marginBottom="14dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -50,7 +50,7 @@
             android:background="@drawable/stat_background"
             android:padding="10dp"
             android:gravity="center"
-            android:layout_marginRight="6dp">
+            android:layout_marginRight="5dp">
 
             <TextView
                 android:id="@+id/tv_total_entries"
@@ -78,7 +78,7 @@
             android:background="@drawable/stat_background"
             android:padding="10dp"
             android:gravity="center"
-            android:layout_marginRight="6dp">
+            android:layout_marginRight="5dp">
 
             <TextView
                 android:id="@+id/tv_total_success"
@@ -134,30 +134,46 @@
         android:textColor="@color/textTertiary"
         android:textSize="10sp"
         android:letterSpacing="0.05"
-        android:layout_marginBottom="6dp" />
+        android:layout_marginBottom="8dp" />
 
-    <ScrollView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="180dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:background="@drawable/input_background"
-        android:padding="10dp">
+        android:padding="2dp">
 
-        <TextView
-            android:id="@+id/tv_history_content"
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Belum ada riwayat"
-            android:textColor="@color/textSecondary"
-            android:textSize="11sp"
-            android:lineSpacingMultiplier="1.4" />
+            android:layout_height="160dp"
+            android:padding="10dp"
+            android:scrollbars="vertical">
 
-    </ScrollView>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_history_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Belum ada riwayat"
+                    android:textColor="@color/textSecondary"
+                    android:textSize="12sp"
+                    android:lineSpacingMultiplier="1.5" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/btn_close_history"
         android:layout_width="match_parent"
         android:layout_height="44dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="14dp"
         android:background="@drawable/button_primary"
         android:text="TUTUP"
         android:textColor="#FFFFFF"
