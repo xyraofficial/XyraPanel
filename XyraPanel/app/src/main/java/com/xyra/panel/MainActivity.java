@@ -2,6 +2,7 @@ package com.xyra.panel;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
@@ -9,6 +10,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,6 +40,8 @@ public class MainActivity extends Activity {
     private boolean isRunning = false;
     private static final int MAX_SEND = 5;
     private String selectedProvider = "whatsapp";
+    private static final String PREFS_NAME = "XyraPanelPrefs";
+    private static final String KEY_PRIVACY_ACCEPTED = "privacy_accepted";
 
     private class AccFloodTask extends AsyncTask<String, Object, String> {
 
@@ -260,6 +265,50 @@ public class MainActivity extends Activity {
                 }
             }
         });
+
+        checkPrivacyPolicy();
+    }
+
+    private void checkPrivacyPolicy() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean accepted = prefs.getBoolean(KEY_PRIVACY_ACCEPTED, false);
+
+        if (!accepted) {
+            showPrivacyDialog();
+        }
+    }
+
+    private void showPrivacyDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_privacy);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
+
+        final CheckBox cbAccept = dialog.findViewById(R.id.cb_accept_privacy);
+        final Button btnAccept = dialog.findViewById(R.id.btn_accept_privacy);
+
+        cbAccept.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                btnAccept.setEnabled(isChecked);
+                btnAccept.setAlpha(isChecked ? 1.0f : 0.5f);
+            }
+        });
+
+        btnAccept.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.putBoolean(KEY_PRIVACY_ACCEPTED, true);
+                editor.apply();
+                dialog.dismiss();
+                Toast.makeText(MainActivity.this, "Selamat datang di Xyra Panel!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
 
     private void startSending() {

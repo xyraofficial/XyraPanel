@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_background"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginBottom="20dp">
+
+        <FrameLayout
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:background="@drawable/icon_background"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="🔒"
+                android:textSize="28sp" />
+
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Privacy Policy"
+            android:textColor="@color/textPrimary"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sebelum menggunakan aplikasi"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp" />
+
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:background="@drawable/input_background"
+        android:padding="16dp"
+        android:layout_marginBottom="20dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dengan menggunakan aplikasi Xyra Panel, Anda menyetujui ketentuan berikut:\n\n1. PENGGUNAAN\nAplikasi ini disediakan untuk tujuan edukasi dan pengujian. Pengguna bertanggung jawab penuh atas penggunaan aplikasi.\n\n2. PRIVASI DATA\nKami tidak menyimpan data pribadi Anda. Semua data yang dimasukkan hanya digunakan untuk proses pengiriman.\n\n3. TANGGUNG JAWAB\nPengembang tidak bertanggung jawab atas penyalahgunaan aplikasi. Gunakan dengan bijak dan sesuai hukum yang berlaku.\n\n4. PERSETUJUAN\nDengan mencentang kotak persetujuan, Anda menyatakan telah membaca dan menyetujui seluruh ketentuan di atas."
+            android:textColor="@color/textSecondary"
+            android:textSize="13sp"
+            android:lineSpacingMultiplier="1.3" />
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/stat_background"
+        android:padding="14dp"
+        android:layout_marginBottom="20dp">
+
+        <CheckBox
+            android:id="@+id/cb_accept_privacy"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:buttonTint="@color/colorPrimary" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Saya telah membaca dan menyetujui Privacy Policy"
+            android:textColor="@color/textPrimary"
+            android:textSize="13sp"
+            android:layout_marginLeft="8dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_accept_privacy"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@drawable/button_primary"
+        android:text="LANJUTKAN"
+        android:textColor="#FFFFFF"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:enabled="false"
+        android:alpha="0.5" />
+
+</LinearLayout>
