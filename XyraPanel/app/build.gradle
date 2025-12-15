@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.xyra.panel"
-        minSdkVersion 19
-        targetSdkVersion 26
+        minSdkVersion 21
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
     }
@@ -27,4 +27,8 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.core:core:1.12.0'
+    implementation 'androidx.drawerlayout:drawerlayout:1.2.0'
+    implementation 'com.google.android.material:material:1.11.0'
 }

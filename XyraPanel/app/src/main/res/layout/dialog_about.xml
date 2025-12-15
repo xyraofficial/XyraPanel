@@ -231,6 +231,17 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btn_report_problem"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:background="@drawable/button_quick"
+            android:text="LAPORKAN MASALAH"
+            android:textColor="@color/colorPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <Button
             android:id="@+id/btn_close_about"
             android:layout_width="match_parent"
             android:layout_height="46dp"

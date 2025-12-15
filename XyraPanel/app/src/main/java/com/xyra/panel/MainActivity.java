@@ -15,10 +15,12 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -37,6 +39,11 @@ import android.os.Vibrator;
 import android.os.VibrationEffect;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.google.android.material.navigation.NavigationView;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -54,10 +61,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements NavigationView.OnNavigationItemSelectedListener {
 
     private EditText etTargetPhone, etJumlahKirim;
-    private TextView tvAppTitle;
     private Button btnStartFlood;
     private Button btnQuick1, btnQuick3, btnQuick5, btnQuickRandom;
     private Button btnSms, btnWhatsapp;
@@ -66,6 +72,10 @@ public class MainActivity extends Activity {
     private TextView tvStatSuccess, tvStatFailed, tvStatAvg;
     private View statusDot;
     private View btnFailureInfo;
+    
+    private DrawerLayout drawerLayout;
+    private NavigationView navigationView;
+    private ImageButton btnMenu;
 
     private AccFloodTask currentTask;
     private boolean isRunning = false;
@@ -78,6 +88,8 @@ public class MainActivity extends Activity {
     private static final String ACTION_SHOW_HISTORY = "com.xyra.panel.SHOW_HISTORY";
     private static final int NOTIFICATION_ID = 1001;
     private Button btnHistory, btnAbout;
+    
+    private static final String SUPPORT_EMAIL = "xyraofficialsup@gmail.com";
     
     private ArrayList<FailureInfo> failureList = new ArrayList<>();
     
@@ -330,6 +342,23 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        btnMenu = findViewById(R.id.btn_menu);
+        
+        navigationView.setNavigationItemSelectedListener(this);
+        
+        btnMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.closeDrawer(GravityCompat.START);
+                } else {
+                    drawerLayout.openDrawer(GravityCompat.START);
+                }
+            }
+        });
+
         etTargetPhone = findViewById(R.id.et_target_phone);
         etJumlahKirim = findViewById(R.id.et_jumlah_kirim);
         btnStartFlood = findViewById(R.id.btn_start_flood);
@@ -413,9 +442,6 @@ public class MainActivity extends Activity {
 
         btnHistory = findViewById(R.id.btn_history);
         btnAbout = findViewById(R.id.btn_about);
-        tvAppTitle = findViewById(R.id.tv_app_title);
-        tvAppTitle.setText("XyraPanel");
-        tvAppTitle.setTextColor(getResources().getColor(R.color.colorPrimary));
 
         btnHistory.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -438,6 +464,60 @@ public class MainActivity extends Activity {
         
         setupInputValidation();
         updateButtonState();
+    }
+    
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+        
+        if (id == R.id.nav_home) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else if (id == R.id.nav_history) {
+            showHistoryDialog();
+        } else if (id == R.id.nav_about) {
+            showAboutDialog();
+        } else if (id == R.id.nav_report) {
+            openReportProblem();
+        } else if (id == R.id.nav_privacy) {
+            showPrivacyDialog();
+        }
+        
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+    
+    private void openReportProblem() {
+        String deviceInfo = "Device: " + Build.MANUFACTURER + " " + Build.MODEL + "\n" +
+                           "Android: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")\n" +
+                           "App Version: 1.0\n\n";
+        
+        String subject = "Laporan Masalah XyraPanel";
+        String body = "Halo Tim XyraPanel,\n\n" +
+                     "Saya ingin melaporkan masalah:\n\n" +
+                     "[Jelaskan masalah Anda di sini]\n\n" +
+                     "---\n" +
+                     "Info Perangkat:\n" + deviceInfo;
+        
+        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+        emailIntent.setData(Uri.parse("mailto:"));
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{SUPPORT_EMAIL});
+        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+        
+        try {
+            startActivity(Intent.createChooser(emailIntent, "Pilih Aplikasi Email"));
+        } catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this, "Tidak ada aplikasi email terinstal", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
     }
     
     private void setupInputValidation() {
@@ -587,10 +667,6 @@ public class MainActivity extends Activity {
         dialog.show();
     }
     
-    private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc) {
-        addFailureItemToLayout(parent, icon, title, desc, "");
-    }
-    
     private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc, String time) {
         View itemView = LayoutInflater.from(this).inflate(R.layout.item_failure_reason, parent, false);
         
@@ -608,18 +684,9 @@ public class MainActivity extends Activity {
     }
     
     private boolean isVpnActive() {
-        try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                String name = iface.getName().toLowerCase();
-                if ((name.contains("tun") || name.contains("ppp") || name.contains("pptp")) && iface.isUp()) {
-                    return true;
-                }
-            }
-            
+        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                 Network activeNetwork = cm.getActiveNetwork();
                 if (activeNetwork != null) {
                     NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
@@ -627,9 +694,19 @@ public class MainActivity extends Activity {
                         return true;
                     }
                 }
+            } else {
+                try {
+                    Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+                    while (networkInterfaces.hasMoreElements()) {
+                        NetworkInterface ni = networkInterfaces.nextElement();
+                        if (ni.isUp() && (ni.getName().contains("tun") || ni.getName().contains("ppp"))) {
+                            return true;
+                        }
+                    }
+                } catch (Exception e) {
+                    return false;
+                }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         return false;
     }
@@ -637,24 +714,16 @@ public class MainActivity extends Activity {
     private boolean isPacketCaptureAppInstalled() {
         String[] captureApps = {
             "app.greyshirts.sslcapture",
-            "com.guyshefer.sslcaptureandroidexpert",
-            "com.egorovandreyrm.pcapremote",
+            "com.guoshi.httpcanary",
             "com.minhui.networkcapture",
-            "jp.co.taosoftware.android.packetcapture",
-            "com.emanuelef.remote_capture",
-            "eu.faircode.netguard",
-            "tech.httptoolkit.android.v1",
-            "com.reqable.android",
-            "com.charlesproxy.charles",
-            "org.proxydroid",
-            "org.sandroproxy.drony",
-            "com.mightydeveloper.httpcatcher"
+            "io.github.nicemoe.fiddler",
+            "com.egorovandreyrm.pcapremote"
         };
         
         PackageManager pm = getPackageManager();
-        for (String packageName : captureApps) {
+        for (String pkg : captureApps) {
             try {
-                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+                pm.getPackageInfo(pkg, 0);
                 return true;
             } catch (PackageManager.NameNotFoundException e) {
             }
@@ -664,149 +733,36 @@ public class MainActivity extends Activity {
     
     private boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
-        
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Network network = cm.getActiveNetwork();
-            if (network == null) return false;
-            NetworkCapabilities caps = cm.getNetworkCapabilities(network);
-            return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+        if (cm != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                Network activeNetwork = cm.getActiveNetwork();
+                if (activeNetwork != null) {
+                    NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+                    return caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+                }
+            } else {
+                NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
+                return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+            }
+        }
+        return false;
+    }
+    
+    private void selectProvider(String provider) {
+        selectedProvider = provider;
+        if ("sms".equals(provider)) {
+            btnSms.setBackgroundResource(R.drawable.button_quick_accent);
+            btnSms.setTextColor(Color.WHITE);
+            btnWhatsapp.setBackgroundResource(R.drawable.button_quick);
+            btnWhatsapp.setTextColor(getResources().getColor(R.color.colorPrimary));
         } else {
-            NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-            return networkInfo != null && networkInfo.isConnected();
+            btnWhatsapp.setBackgroundResource(R.drawable.button_quick_accent);
+            btnWhatsapp.setTextColor(Color.WHITE);
+            btnSms.setBackgroundResource(R.drawable.button_quick);
+            btnSms.setTextColor(getResources().getColor(R.color.colorPrimary));
         }
     }
     
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        handleNotificationIntent(intent);
-    }
-    
-    private void handleNotificationIntent(Intent intent) {
-        if (intent != null && ACTION_SHOW_HISTORY.equals(intent.getAction())) {
-            showHistoryDialog();
-        }
-    }
-
-    private void checkPrivacyPolicy() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        boolean accepted = prefs.getBoolean(KEY_PRIVACY_ACCEPTED, false);
-
-        if (!accepted) {
-            showPrivacyDialog();
-        }
-    }
-
-    private void showPrivacyDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_privacy);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCancelable(false);
-
-        final CheckBox cbAccept = dialog.findViewById(R.id.cb_accept_privacy);
-        final Button btnAccept = dialog.findViewById(R.id.btn_accept_privacy);
-
-        cbAccept.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                btnAccept.setEnabled(isChecked);
-                btnAccept.setAlpha(isChecked ? 1.0f : 0.5f);
-            }
-        });
-
-        btnAccept.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putBoolean(KEY_PRIVACY_ACCEPTED, true);
-                editor.apply();
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Selamat datang di Xyra Panel!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void hideKeyboard() {
-        View view = this.getCurrentFocus();
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        }
-    }
-    
-    private void startSending() {
-        hideKeyboard();
-        
-        try {
-            String targetPhone = etTargetPhone.getText().toString().trim();
-            String jumlahStr = etJumlahKirim.getText().toString().trim();
-
-            if (targetPhone.isEmpty() || jumlahStr.isEmpty()) {
-                Toast.makeText(this, "Isi semua kolom!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            
-            if (!isNetworkAvailable()) {
-                addFailureInfo("N", "Tidak Ada Jaringan", "Tidak dapat mengirim tanpa koneksi internet");
-                Toast.makeText(this, "Tidak ada koneksi internet!", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            
-            if (isVpnActive()) {
-                addFailureInfo("V", "VPN Aktif", "VPN terdeteksi aktif saat pengiriman");
-            }
-            
-            if (isPacketCaptureAppInstalled()) {
-                addFailureInfo("H", "HTTP Capture", "Aplikasi capture terdeteksi terinstal");
-            }
-
-            int jumlahKirim = Integer.parseInt(jumlahStr);
-            if (jumlahKirim < 1 || jumlahKirim > MAX_SEND) {
-                showMaxWarningDialog();
-                return;
-            }
-
-            enableQuickButtons(false);
-            progressBar.setVisibility(View.VISIBLE);
-            progressBar.setProgress(0);
-
-            currentTask = new AccFloodTask();
-            currentTask.execute(targetPhone, String.valueOf(jumlahKirim));
-
-        } catch (NumberFormatException e) {
-            Toast.makeText(this, "Jumlah harus angka!", Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
-            enableQuickButtons(true);
-            progressBar.setVisibility(View.GONE);
-        }
-    }
-
-    private void showMaxWarningDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_warning);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCancelable(true);
-
-        Button btnOk = dialog.findViewById(R.id.btn_dialog_ok);
-        btnOk.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                etJumlahKirim.setText("");
-                etJumlahKirim.requestFocus();
-            }
-        });
-
-        dialog.show();
-    }
-
     private void enableQuickButtons(boolean enabled) {
         btnQuick1.setEnabled(enabled);
         btnQuick3.setEnabled(enabled);
@@ -815,196 +771,176 @@ public class MainActivity extends Activity {
         btnSms.setEnabled(enabled);
         btnWhatsapp.setEnabled(enabled);
     }
-
-    private void selectProvider(String provider) {
-        selectedProvider = provider;
-        if (provider.equals("sms")) {
-            btnSms.setBackgroundResource(R.drawable.button_quick_accent);
-            btnSms.setTextColor(getResources().getColor(android.R.color.white));
-            btnWhatsapp.setBackgroundResource(R.drawable.button_quick);
-            btnWhatsapp.setTextColor(getResources().getColor(R.color.colorPrimary));
-        } else {
-            btnWhatsapp.setBackgroundResource(R.drawable.button_quick_accent);
-            btnWhatsapp.setTextColor(getResources().getColor(android.R.color.white));
-            btnSms.setBackgroundResource(R.drawable.button_quick);
-            btnSms.setTextColor(getResources().getColor(R.color.colorPrimary));
+    
+    private void startSending() {
+        String phone = etTargetPhone.getText().toString().trim();
+        String jumlahStr = etJumlahKirim.getText().toString().trim();
+        
+        if (phone.isEmpty()) {
+            Toast.makeText(this, "Masukkan nomor telepon", Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
-
-    private void createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(
-                CHANNEL_ID,
-                "Xyra Notifications",
-                NotificationManager.IMPORTANCE_DEFAULT
-            );
-            channel.setDescription("Notifikasi pengiriman");
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) {
-                manager.createNotificationChannel(channel);
-            }
+        
+        if (jumlahStr.isEmpty()) {
+            Toast.makeText(this, "Masukkan jumlah pengiriman", Toast.LENGTH_SHORT).show();
+            return;
         }
-    }
-
-    private void showNotification(String title, String message) {
+        
+        int jumlah;
         try {
-            NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-            
-            Intent intent = new Intent(this, MainActivity.class);
-            intent.setAction(ACTION_SHOW_HISTORY);
-            intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            
-            PendingIntent pendingIntent;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
-            } else {
-                pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            }
-            
-            Notification.Builder builder;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                builder = new Notification.Builder(this, CHANNEL_ID);
-            } else {
-                builder = new Notification.Builder(this);
-            }
-            
-            builder.setSmallIcon(android.R.drawable.ic_dialog_info)
-                   .setContentTitle(title)
-                   .setContentText(message)
-                   .setContentIntent(pendingIntent)
-                   .setAutoCancel(true);
-            
-            if (manager != null) {
-                manager.notify(NOTIFICATION_ID, builder.build());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            jumlah = Integer.parseInt(jumlahStr);
+        } catch (NumberFormatException e) {
+            Toast.makeText(this, "Jumlah tidak valid", Toast.LENGTH_SHORT).show();
+            return;
         }
+        
+        if (jumlah < 1 || jumlah > MAX_SEND) {
+            Toast.makeText(this, "Jumlah harus antara 1-" + MAX_SEND, Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        if (!isNetworkAvailable()) {
+            Toast.makeText(this, "Tidak ada koneksi internet", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+        
+        failureList.clear();
+        updateFailureIcon();
+        
+        progressBar.setVisibility(View.VISIBLE);
+        progressBar.setProgress(0);
+        enableQuickButtons(false);
+        
+        currentTask = new AccFloodTask();
+        currentTask.execute(phone, jumlahStr);
     }
-
+    
     private void saveHistory(String phone, int success, int failed, String provider) {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String historyJson = prefs.getString(KEY_HISTORY, "[]");
+        
         try {
-            SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-            String history = prefs.getString(KEY_HISTORY, "");
+            JSONArray historyArray = new JSONArray(historyJson);
             
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM HH:mm", Locale.getDefault());
-            String timestamp = sdf.format(new Date());
+            JSONObject entry = new JSONObject();
+            entry.put("phone", phone);
+            entry.put("success", success);
+            entry.put("failed", failed);
+            entry.put("provider", provider);
+            entry.put("time", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date()));
             
-            String newEntry = timestamp + "|" + phone + "|" + success + "|" + failed + "|" + provider.toUpperCase();
+            historyArray.put(entry);
             
-            if (!history.isEmpty()) {
-                history = newEntry + "\n" + history;
-            } else {
-                history = newEntry;
+            while (historyArray.length() > 50) {
+                historyArray.remove(0);
             }
             
-            String[] lines = history.split("\n");
-            if (lines.length > 20) {
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < 20; i++) {
-                    sb.append(lines[i]);
-                    if (i < 19) sb.append("\n");
-                }
-                history = sb.toString();
-            }
-            
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(KEY_HISTORY, history);
-            editor.apply();
+            prefs.edit().putString(KEY_HISTORY, historyArray.toString()).apply();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
+    
     private void showHistoryDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_history);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
-
-        final TextView tvHistory = dialog.findViewById(R.id.tv_history_content);
+        
+        LinearLayout layoutItems = dialog.findViewById(R.id.layout_history_items);
         Button btnClear = dialog.findViewById(R.id.btn_clear_history);
         Button btnClose = dialog.findViewById(R.id.btn_close_history);
-
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String history = prefs.getString(KEY_HISTORY, "");
-
-        if (history.isEmpty()) {
-            tvHistory.setText("Belum ada riwayat pengiriman");
-        } else {
-            StringBuilder formatted = new StringBuilder();
-            String[] lines = history.split("\n");
-            for (String line : lines) {
-                String[] parts = line.split("\\|");
-                if (parts.length >= 5) {
-                    formatted.append(parts[0]).append("\n");
-                    formatted.append("  ").append(parts[1]).append(" (").append(parts[4]).append(")\n");
-                    formatted.append("  Berhasil: ").append(parts[2]).append(" | Gagal: ").append(parts[3]).append("\n\n");
+        
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String historyJson = prefs.getString(KEY_HISTORY, "[]");
+        
+        try {
+            JSONArray historyArray = new JSONArray(historyJson);
+            
+            if (historyArray.length() == 0) {
+                TextView emptyText = new TextView(this);
+                emptyText.setText("Belum ada riwayat");
+                emptyText.setTextColor(getResources().getColor(R.color.textSecondary));
+                emptyText.setPadding(0, 20, 0, 20);
+                layoutItems.addView(emptyText);
+            } else {
+                for (int i = historyArray.length() - 1; i >= 0; i--) {
+                    JSONObject entry = historyArray.getJSONObject(i);
+                    
+                    LinearLayout itemLayout = new LinearLayout(this);
+                    itemLayout.setOrientation(LinearLayout.VERTICAL);
+                    itemLayout.setPadding(0, 12, 0, 12);
+                    
+                    TextView tvPhone = new TextView(this);
+                    tvPhone.setText(entry.getString("phone"));
+                    tvPhone.setTextColor(getResources().getColor(R.color.textPrimary));
+                    tvPhone.setTextSize(14);
+                    
+                    TextView tvDetails = new TextView(this);
+                    String provider = entry.optString("provider", "sms").toUpperCase();
+                    tvDetails.setText(provider + " | Berhasil: " + entry.getInt("success") + " | Gagal: " + entry.getInt("failed"));
+                    tvDetails.setTextColor(getResources().getColor(R.color.textSecondary));
+                    tvDetails.setTextSize(12);
+                    
+                    TextView tvTime = new TextView(this);
+                    tvTime.setText(entry.getString("time"));
+                    tvTime.setTextColor(getResources().getColor(R.color.textTertiary));
+                    tvTime.setTextSize(11);
+                    
+                    itemLayout.addView(tvPhone);
+                    itemLayout.addView(tvDetails);
+                    itemLayout.addView(tvTime);
+                    
+                    layoutItems.addView(itemLayout);
+                    
+                    if (i > 0) {
+                        View divider = new View(this);
+                        divider.setBackgroundColor(getResources().getColor(R.color.divider));
+                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT, 1);
+                        divider.setLayoutParams(params);
+                        layoutItems.addView(divider);
+                    }
                 }
             }
-            tvHistory.setText(formatted.toString().trim());
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
+        
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.remove(KEY_HISTORY);
-                editor.apply();
-                tvHistory.setText("Riwayat telah dihapus");
+                prefs.edit().putString(KEY_HISTORY, "[]").apply();
+                dialog.dismiss();
                 Toast.makeText(MainActivity.this, "Riwayat dihapus", Toast.LENGTH_SHORT).show();
             }
         });
-
+        
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
             }
         });
-
+        
         dialog.show();
     }
-
+    
     private void showAboutDialog() {
         final Dialog dialog = new Dialog(this);
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_about);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.setCancelable(true);
-
+        
         Button btnClose = dialog.findViewById(R.id.btn_close_about);
-        Button btnEmail = dialog.findViewById(R.id.btn_contact_email);
-        Button btnWa = dialog.findViewById(R.id.btn_contact_wa);
-        
-        btnEmail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                intent.setData(Uri.parse("mailto:xyraofficialsup@gmail.com"));
-                intent.putExtra(Intent.EXTRA_SUBJECT, "XyraPanel Support");
-                try {
-                    startActivity(Intent.createChooser(intent, "Kirim Email"));
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "Tidak ada aplikasi email", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        
-        btnWa.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("https://wa.me/+62895325844493"));
-                try {
-                    startActivity(intent);
-                } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "Tidak dapat membuka WhatsApp", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        Button btnReport = dialog.findViewById(R.id.btn_report_problem);
         
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -1012,7 +948,150 @@ public class MainActivity extends Activity {
                 dialog.dismiss();
             }
         });
-
+        
+        if (btnReport != null) {
+            btnReport.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dialog.dismiss();
+                    openReportProblem();
+                }
+            });
+        }
+        
         dialog.show();
+    }
+    
+    private void showPrivacyDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_privacy);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
+        
+        Button btnClose = dialog.findViewById(R.id.btn_close_privacy);
+        
+        btnClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        
+        dialog.show();
+    }
+    
+    private void checkPrivacyPolicy() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean accepted = prefs.getBoolean(KEY_PRIVACY_ACCEPTED, false);
+        
+        if (!accepted) {
+            showPrivacyAcceptDialog();
+        }
+    }
+    
+    private void showPrivacyAcceptDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_privacy);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
+        
+        CheckBox cbAccept = dialog.findViewById(R.id.cb_accept_privacy);
+        Button btnAccept = dialog.findViewById(R.id.btn_accept_privacy);
+        Button btnClose = dialog.findViewById(R.id.btn_close_privacy);
+        
+        if (btnAccept != null) {
+            btnAccept.setEnabled(false);
+            btnAccept.setAlpha(0.5f);
+        }
+        
+        if (cbAccept != null && btnAccept != null) {
+            cbAccept.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    btnAccept.setEnabled(isChecked);
+                    btnAccept.setAlpha(isChecked ? 1.0f : 0.5f);
+                }
+            });
+            
+            btnAccept.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+                    prefs.edit().putBoolean(KEY_PRIVACY_ACCEPTED, true).apply();
+                    dialog.dismiss();
+                }
+            });
+        }
+        
+        if (btnClose != null) {
+            btnClose.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    finish();
+                }
+            });
+        }
+        
+        dialog.show();
+    }
+    
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "XyraPanel Notifications";
+            String description = "Notifikasi status pengiriman";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            if (notificationManager != null) {
+                notificationManager.createNotificationChannel(channel);
+            }
+        }
+    }
+    
+    private void showNotification(String title, String content) {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setAction(ACTION_SHOW_HISTORY);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        
+        PendingIntent pendingIntent;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        } else {
+            pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
+        }
+        
+        Notification.Builder builder;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            builder = new Notification.Builder(this, CHANNEL_ID);
+        } else {
+            builder = new Notification.Builder(this);
+        }
+        
+        builder.setSmallIcon(R.drawable.ic_launcher)
+               .setContentTitle(title)
+               .setContentText(content)
+               .setContentIntent(pendingIntent)
+               .setAutoCancel(true);
+        
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        if (notificationManager != null) {
+            notificationManager.notify(NOTIFICATION_ID, builder.build());
+        }
+    }
+    
+    private void handleNotificationIntent(Intent intent) {
+        if (intent != null && ACTION_SHOW_HISTORY.equals(intent.getAction())) {
+            showHistoryDialog();
+        }
+    }
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleNotificationIntent(intent);
     }
 }
