@@ -53,7 +53,7 @@ public class MainActivity extends Activity {
     private AccFloodTask currentTask;
     private boolean isRunning = false;
     private static final int MAX_SEND = 5;
-    private String selectedProvider = "whatsapp";
+    private String selectedProvider = "sms";
     private static final String PREFS_NAME = "XyraPanelPrefs";
     private static final String KEY_PRIVACY_ACCEPTED = "privacy_accepted";
     private static final String KEY_HISTORY = "send_history";
@@ -313,6 +313,8 @@ public class MainActivity extends Activity {
 
         createNotificationChannel();
         checkPrivacyPolicy();
+        
+        selectProvider("sms");
         
         handleNotificationIntent(getIntent());
     }
