@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="ACC OTP Flooder Setup"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/et_target_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Nomor Target (Contoh: 812xxxxxx)"
+        android:inputType="phone"
+        android:maxLength="15"/>
+
+    <EditText
+        android:id="@+id/et_jumlah_kirim"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Jumlah Kirim (1-100)"
+        android:inputType="number"
+        android:maxLength="3"/>
+
+    <Button
+        android:id="@+id/btn_start_flood"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mulai Kirim OTP (Jeda 3s)"
+        android:layout_marginTop="24dp"/>
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"
+        android:layout_marginTop="16dp"
+        android:visibility="gone"/>
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Status: Siap..."
+        android:textColor="#333333"/>
+
+</LinearLayout>
+
