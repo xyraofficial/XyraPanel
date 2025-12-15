@@ -32,9 +32,18 @@ import org.json.JSONObject;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.NetworkInterface;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
+import android.content.pm.PackageManager;
+import android.content.pm.ApplicationInfo;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.content.Context;
 
 public class MainActivity extends Activity {
 
@@ -368,7 +377,106 @@ public class MainActivity extends Activity {
         
         selectProvider("sms");
         
+        checkSecurityThreats();
+        
         handleNotificationIntent(getIntent());
+    }
+    
+    private void checkSecurityThreats() {
+        if (isVpnActive() || isPacketCaptureAppInstalled()) {
+            showSecurityWarningDialog();
+        }
+    }
+    
+    private boolean isVpnActive() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                String name = iface.getName().toLowerCase();
+                if ((name.contains("tun") || name.contains("ppp") || name.contains("pptp")) && iface.isUp()) {
+                    return true;
+                }
+            }
+            
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+                Network activeNetwork = cm.getActiveNetwork();
+                if (activeNetwork != null) {
+                    NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
+                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    private boolean isPacketCaptureAppInstalled() {
+        String[] captureApps = {
+            "app.greyshirts.sslcapture",
+            "com.guyshefer.sslcaptureandroidexpert",
+            "com.egorovandreyrm.pcapremote",
+            "com.minhui.networkcapture",
+            "jp.co.taosoftware.android.packetcapture",
+            "com.emanuelef.remote_capture",
+            "com.pluscubed.udptester",
+            "eu.faircode.netguard",
+            "com.github.nicholasda.httptoolkit",
+            "tech.httptoolkit.android.v1",
+            "com.reqable.android",
+            "io.github.nicholasda.charles",
+            "com.charlesproxy.charles",
+            "de.robv.android.xposed.installer",
+            "io.va.exposed",
+            "com.topjohnwu.magisk",
+            "org.proxydroid",
+            "org.sandroproxy.drony",
+            "com.mightydeveloper.httpcatcher"
+        };
+        
+        PackageManager pm = getPackageManager();
+        for (String packageName : captureApps) {
+            try {
+                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
+                return true;
+            } catch (PackageManager.NameNotFoundException e) {
+                // App not installed
+            }
+        }
+        return false;
+    }
+    
+    private void showSecurityWarningDialog() {
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_security_warning);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(false);
+
+        Button btnExit = dialog.findViewById(R.id.btn_exit_app);
+        Button btnContinue = dialog.findViewById(R.id.btn_continue_anyway);
+
+        btnExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+        
+        btnContinue.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                Toast.makeText(MainActivity.this, "Lanjut dengan risiko sendiri!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        dialog.show();
     }
     
     @Override
