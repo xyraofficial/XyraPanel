@@ -115,7 +115,9 @@
                 android:textColor="@color/textPrimary"
                 android:textColorHint="@color/textTertiary"
                 android:inputType="number"
-                android:maxLength="3" />
+                android:maxLength="3"
+                android:drawableLeft="@drawable/ic_send"
+                android:drawablePadding="10dp" />
 
         </LinearLayout>
 
