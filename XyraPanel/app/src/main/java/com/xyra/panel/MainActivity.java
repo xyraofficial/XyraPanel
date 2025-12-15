@@ -88,6 +88,7 @@ public class MainActivity extends Activity {
     private Button btnHistory, btnAbout;
     
     private static final String SUPPORT_EMAIL = "xyraofficialsup@gmail.com";
+    private static final String REPORT_API_URL = "https://xyra-panel-api.vercel.app/api/report";
     
     private ArrayList<FailureInfo> failureList = new ArrayList<>();
     
@@ -582,27 +583,119 @@ public class MainActivity extends Activity {
     }
     
     private void openReportProblem() {
-        String deviceInfo = "Device: " + Build.MANUFACTURER + " " + Build.MODEL + "\n" +
-                           "Android: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")\n" +
-                           "App Version: 1.0\n\n";
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_report);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.setCancelable(true);
         
-        String subject = "Laporan Masalah XyraPanel";
-        String body = "Halo Tim XyraPanel,\n\n" +
-                     "Saya ingin melaporkan masalah:\n\n" +
-                     "[Jelaskan masalah Anda di sini]\n\n" +
-                     "---\n" +
-                     "Info Perangkat:\n" + deviceInfo;
+        final EditText etReportMessage = (EditText) dialog.findViewById(R.id.et_report_message);
+        Button btnSendReport = (Button) dialog.findViewById(R.id.btn_send_report);
+        Button btnCancelReport = (Button) dialog.findViewById(R.id.btn_cancel_report);
         
-        Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-        emailIntent.setData(Uri.parse("mailto:"));
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{SUPPORT_EMAIL});
-        emailIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        emailIntent.putExtra(Intent.EXTRA_TEXT, body);
+        btnSendReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String message = etReportMessage.getText().toString().trim();
+                if (message.isEmpty()) {
+                    Toast.makeText(MainActivity.this, "Silakan tulis masalah Anda", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                
+                String deviceInfo = "Device: " + Build.MANUFACTURER + " " + Build.MODEL + 
+                                   ", Android: " + Build.VERSION.RELEASE + " (API " + Build.VERSION.SDK_INT + ")";
+                
+                new SendReportTask().execute(message, deviceInfo, "1.0");
+                dialog.dismiss();
+            }
+        });
         
-        try {
-            startActivity(Intent.createChooser(emailIntent, "Pilih Aplikasi Email"));
-        } catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this, "Tidak ada aplikasi email terinstal", Toast.LENGTH_SHORT).show();
+        btnCancelReport.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+        
+        dialog.show();
+    }
+    
+    private class SendReportTask extends AsyncTask<String, Void, Boolean> {
+        private String responseMessage = "";
+        
+        @Override
+        protected void onPreExecute() {
+            Toast.makeText(MainActivity.this, "Mengirim laporan...", Toast.LENGTH_SHORT).show();
+        }
+        
+        @Override
+        protected Boolean doInBackground(String... params) {
+            String message = params[0];
+            String deviceInfo = params[1];
+            String appVersion = params[2];
+            
+            HttpURLConnection conn = null;
+            try {
+                JSONObject payload = new JSONObject();
+                payload.put("message", message);
+                payload.put("deviceInfo", deviceInfo);
+                payload.put("subject", "Laporan Masalah XyraPanel");
+                payload.put("appVersion", appVersion);
+                
+                String jsonData = payload.toString();
+                
+                URL url = new URL(REPORT_API_URL);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("POST");
+                conn.setConnectTimeout(15000);
+                conn.setReadTimeout(20000);
+                conn.setDoOutput(true);
+                conn.setRequestProperty("Content-Type", "application/json");
+                conn.setRequestProperty("Accept", "application/json");
+                
+                OutputStream os = conn.getOutputStream();
+                os.write(jsonData.getBytes("UTF-8"));
+                os.flush();
+                os.close();
+                
+                int responseCode = conn.getResponseCode();
+                
+                if (responseCode == 200) {
+                    java.io.InputStream is = conn.getInputStream();
+                    java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+                    StringBuilder sb = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        sb.append(line);
+                    }
+                    reader.close();
+                    
+                    JSONObject response = new JSONObject(sb.toString());
+                    responseMessage = response.optString("message", "Laporan berhasil dikirim!");
+                    return true;
+                } else {
+                    responseMessage = "Gagal mengirim laporan (Error " + responseCode + ")";
+                    return false;
+                }
+            } catch (Exception e) {
+                responseMessage = "Gagal mengirim: " + e.getMessage();
+                return false;
+            } finally {
+                if (conn != null) {
+                    conn.disconnect();
+                }
+            }
+        }
+        
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Toast.makeText(MainActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+                vibrateSuccess();
+            } else {
+                Toast.makeText(MainActivity.this, responseMessage, Toast.LENGTH_LONG).show();
+                vibrateFailed();
+            }
         }
     }
     
