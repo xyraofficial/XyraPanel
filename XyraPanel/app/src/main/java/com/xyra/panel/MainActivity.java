@@ -467,15 +467,16 @@ public class MainActivity extends Activity {
         Button btnClear = dialog.findViewById(R.id.btn_clear_history);
         Button btnClose = dialog.findViewById(R.id.btn_close_history);
 
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        final SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         String history = prefs.getString(KEY_HISTORY, "");
+        final TextView tvContentFinal = tvContent;
         tvContent.setText(history.isEmpty() ? "Belum ada riwayat pengiriman" : history);
 
         btnClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 prefs.edit().putString(KEY_HISTORY, "").apply();
-                tvContent.setText("Belum ada riwayat pengiriman");
+                tvContentFinal.setText("Belum ada riwayat pengiriman");
                 Toast.makeText(MainActivity.this, "Riwayat dihapus", Toast.LENGTH_SHORT).show();
             }
         });

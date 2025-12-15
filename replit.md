@@ -1,50 +1,48 @@
-# XyraPanel - Android OTP Sender App
+# XyraPanel
 
-## Project Overview
-XyraPanel adalah aplikasi Android untuk mengirim OTP melalui ACC.co.id API. Aplikasi ini memiliki tampilan modern bergaya iOS dengan tema light dan smooth.
+## Overview
+XyraPanel adalah aplikasi Android untuk pengiriman OTP ACC.co.id. Aplikasi ini mendukung pengiriman via SMS dan WhatsApp.
 
-## Project Type
-**Android Native App** - Project ini BUKAN web application. Tidak bisa dijalankan di Replit karena memerlukan Android SDK. Build harus dilakukan di AIDE atau Android Studio.
+## Project Structure
+```
+XyraPanel/
+├── app/
+│   ├── src/main/
+│   │   ├── java/com/xyra/panel/
+│   │   │   └── MainActivity.java
+│   │   ├── res/
+│   │   │   ├── drawable/     - Button styles, icons, backgrounds
+│   │   │   ├── layout/       - Activity dan dialog layouts
+│   │   │   ├── values/       - Colors, strings, styles
+│   │   │   └── xml/          - Network security config
+│   │   └── AndroidManifest.xml
+│   └── build.gradle
+├── build.gradle
+└── settings.gradle
+```
 
-## Package Structure
-- Package: `com.xyra.panel`
-- Main Activity: `MainActivity.java`
-- Application ID: `com.xyra.panel`
+## Recent Changes (December 15, 2025)
+- Added btn_history and btn_about buttons to activity_main.xml
+- Fixed "variable must be final" error in showHistoryDialog()
+- Added AndroidX core dependency for NotificationCompat
 
-## Key Files
-- `XyraPanel/app/src/main/java/com/xyra/panel/MainActivity.java` - Main logic
-- `XyraPanel/app/src/main/res/layout/activity_main.xml` - UI layout
-- `XyraPanel/app/src/main/res/values/colors.xml` - Color scheme (iOS style)
-- `XyraPanel/app/src/main/res/values/styles.xml` - App theme
-- `XyraPanel/app/src/main/AndroidManifest.xml` - App manifest
-- `XyraPanel/app/build.gradle` - Build configuration
-
-## Features
-1. Modern iOS-style UI with light theme
-2. Quick select buttons (1, 3, 5, Random)
-3. Toggle button (Mulai Kirim / Stop)
-4. Live statistics (Berhasil, Gagal, Rata-rata)
-5. Status indicator with color dot
-6. Max send limit: 5 with warning popup
-7. Cancel/Stop functionality
-
-## UI Components
-- Card-based layout with rounded corners
-- Custom drawables for buttons
-- Warning dialog for max limit
-- Progress bar with custom style
+## Dependencies
+- androidx.core:core:1.9.0
+- androidx.appcompat:appcompat:1.6.1
+- okhttp-4.9.3.jar (in libs folder)
+- okio-2.8.0.jar (in libs folder)
 
 ## Build Instructions
-1. Open project in AIDE or Android Studio
-2. Clean project (if errors appear)
-3. Rebuild to generate R.java
-4. Install APK on Android device
+This is an Android project. To build:
+1. Open project in Android Studio or AIDE
+2. Sync Gradle files
+3. Build APK (Build > Build Bundle(s) / APK(s) > Build APK(s))
 
-## Recent Changes (Dec 15, 2025)
-- Changed package from com.xyra.config to com.xyra.panel
-- Added iOS-style UI design
-- Added quick select buttons
-- Added toggle Start/Stop button
-- Added max send warning popup
-- Fixed Rata-rata text size to match other stats
-- Removed separate cancel button
+## Features
+- Phone number input with validation
+- Quick select buttons (1, 3, 5, Random)
+- SMS/WhatsApp provider selection
+- Progress tracking with success/fail stats
+- Send history with clear option
+- Privacy policy dialog
+- Notifications on completion
