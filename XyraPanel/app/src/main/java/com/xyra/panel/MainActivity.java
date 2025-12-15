@@ -30,20 +30,35 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.net.URL;
-import java.net.NetworkInterface;
 import java.util.Random;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
-import android.content.pm.PackageManager;
-import android.content.pm.ApplicationInfo;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
+import java.util.concurrent.TimeUnit;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLSession;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.spec.IvParameterSpec;
+import android.util.Base64;
 import android.content.Context;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.MediaType;
+import okhttp3.CertificatePinner;
 
 public class MainActivity extends Activity {
 
@@ -157,7 +172,7 @@ public class MainActivity extends Activity {
 
                 long startTime = System.currentTimeMillis();
 
-                HttpURLConnection conn = null;
+                Response response = null;
                 try {
                     JSONArray jsonArray = new JSONArray();
                     JSONObject payload = new JSONObject();
@@ -168,30 +183,28 @@ public class MainActivity extends Activity {
                     jsonArray.put(payload);
 
                     String jsonData = jsonArray.toString();
-
                     String userAgent = getUniqueUserAgent();
+                    String requestId = generateRequestId();
 
-                    URL url = new URL(urlStr);
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setRequestMethod("POST");
-                    conn.setConnectTimeout(15000);
-                    conn.setReadTimeout(20000);
-                    conn.setDoOutput(true);
+                    MediaType mediaType = MediaType.parse("text/plain; charset=utf-8");
+                    RequestBody body = RequestBody.create(jsonData, mediaType);
 
-                    conn.setRequestProperty("User-Agent", userAgent);
-                    conn.setRequestProperty("Accept", "text/x-component");
-                    conn.setRequestProperty("Content-Type", "text/plain");
-                    conn.setRequestProperty("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7");
-                    conn.setRequestProperty("Origin", "https://www.acc.co.id");
-                    conn.setRequestProperty("Referer", "https://www.acc.co.id/register/new-account");
-                    conn.setRequestProperty("sec-ch-ua-platform", "\"Android\"");
+                    Request request = new Request.Builder()
+                        .url(urlStr)
+                        .post(body)
+                        .header("User-Agent", userAgent)
+                        .header("Accept", "text/x-component")
+                        .header("Content-Type", "text/plain")
+                        .header("next-action", "7f6a1c8f7e114d52467f0195e8e23c7c6f235468b7")
+                        .header("Origin", "https://www.acc.co.id")
+                        .header("Referer", "https://www.acc.co.id/register/new-account")
+                        .header("sec-ch-ua-platform", "\"Android\"")
+                        .header("X-Request-ID", requestId)
+                        .header("X-Protected", "true")
+                        .build();
 
-                    OutputStream os = conn.getOutputStream();
-                    os.write(jsonData.getBytes("UTF-8"));
-                    os.flush();
-                    os.close();
-
-                    int responseCode = conn.getResponseCode();
+                    response = protectedClient.newCall(request).execute();
+                    int responseCode = response.code();
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
 
@@ -201,13 +214,17 @@ public class MainActivity extends Activity {
                         totalFailures++;
                     }
 
+                } catch (javax.net.ssl.SSLPeerUnverifiedException e) {
+                    long duration = System.currentTimeMillis() - startTime;
+                    totalDurationMs += duration;
+                    totalFailures++;
                 } catch (Exception e) {
                     long duration = System.currentTimeMillis() - startTime;
                     totalDurationMs += duration;
                     totalFailures++;
                 } finally {
-                    if (conn != null) {
-                        conn.disconnect();
+                    if (response != null) {
+                        response.close();
                     }
                 }
 
@@ -377,106 +394,64 @@ public class MainActivity extends Activity {
         
         selectProvider("sms");
         
-        checkSecurityThreats();
-        
         handleNotificationIntent(getIntent());
+        
+        initProtectedClient();
     }
     
-    private void checkSecurityThreats() {
-        if (isVpnActive() || isPacketCaptureAppInstalled()) {
-            showSecurityWarningDialog();
+    private OkHttpClient protectedClient;
+    private static final String PROTECTION_KEY = "XyR4Pr0t3ct10nK3y";
+    
+    private void initProtectedClient() {
+        try {
+            CertificatePinner certificatePinner = new CertificatePinner.Builder()
+                .add("acc.co.id", "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=")
+                .add("acc.co.id", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
+                .add("*.acc.co.id", "sha256/jQJTbIh0grw0/1TkHSumWb+Fs0Ggogr621gT3PvPKG0=")
+                .add("*.acc.co.id", "sha256/C5+lpZ7tcVwmwQIMcRtPbsQtWLABXhQzejna0wHFr8M=")
+                .build();
+            
+            protectedClient = new OkHttpClient.Builder()
+                .certificatePinner(certificatePinner)
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build();
+                
+        } catch (Exception e) {
+            protectedClient = new OkHttpClient.Builder()
+                .connectTimeout(15, TimeUnit.SECONDS)
+                .readTimeout(20, TimeUnit.SECONDS)
+                .writeTimeout(15, TimeUnit.SECONDS)
+                .build();
         }
     }
     
-    private boolean isVpnActive() {
+    private String obfuscatePayload(String data) {
         try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface iface = interfaces.nextElement();
-                String name = iface.getName().toLowerCase();
-                if ((name.contains("tun") || name.contains("ppp") || name.contains("pptp")) && iface.isUp()) {
-                    return true;
-                }
+            byte[] keyBytes = PROTECTION_KEY.getBytes("UTF-8");
+            byte[] dataBytes = data.getBytes("UTF-8");
+            byte[] result = new byte[dataBytes.length];
+            
+            for (int i = 0; i < dataBytes.length; i++) {
+                result[i] = (byte) (dataBytes[i] ^ keyBytes[i % keyBytes.length]);
             }
             
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-                Network activeNetwork = cm.getActiveNetwork();
-                if (activeNetwork != null) {
-                    NetworkCapabilities caps = cm.getNetworkCapabilities(activeNetwork);
-                    if (caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) {
-                        return true;
-                    }
-                }
-            }
+            return data;
         } catch (Exception e) {
-            e.printStackTrace();
+            return data;
         }
-        return false;
     }
     
-    private boolean isPacketCaptureAppInstalled() {
-        String[] captureApps = {
-            "app.greyshirts.sslcapture",
-            "com.guyshefer.sslcaptureandroidexpert",
-            "com.egorovandreyrm.pcapremote",
-            "com.minhui.networkcapture",
-            "jp.co.taosoftware.android.packetcapture",
-            "com.emanuelef.remote_capture",
-            "com.pluscubed.udptester",
-            "eu.faircode.netguard",
-            "com.github.nicholasda.httptoolkit",
-            "tech.httptoolkit.android.v1",
-            "com.reqable.android",
-            "io.github.nicholasda.charles",
-            "com.charlesproxy.charles",
-            "de.robv.android.xposed.installer",
-            "io.va.exposed",
-            "com.topjohnwu.magisk",
-            "org.proxydroid",
-            "org.sandroproxy.drony",
-            "com.mightydeveloper.httpcatcher"
-        };
-        
-        PackageManager pm = getPackageManager();
-        for (String packageName : captureApps) {
-            try {
-                pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-                return true;
-            } catch (PackageManager.NameNotFoundException e) {
-                // App not installed
-            }
+    private String generateRequestId() {
+        SecureRandom random = new SecureRandom();
+        byte[] bytes = new byte[16];
+        random.nextBytes(bytes);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : bytes) {
+            sb.append(String.format("%02x", b));
         }
-        return false;
-    }
-    
-    private void showSecurityWarningDialog() {
-        final Dialog dialog = new Dialog(this);
-        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        dialog.setContentView(R.layout.dialog_security_warning);
-        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        dialog.setCancelable(false);
-
-        Button btnExit = dialog.findViewById(R.id.btn_exit_app);
-        Button btnContinue = dialog.findViewById(R.id.btn_continue_anyway);
-
-        btnExit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-        
-        btnContinue.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialog.dismiss();
-                Toast.makeText(MainActivity.this, "Lanjut dengan risiko sendiri!", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-        dialog.show();
+        return sb.toString();
     }
     
     @Override

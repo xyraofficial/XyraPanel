@@ -22,19 +22,24 @@ XyraPanel/
 ```
 
 ## Recent Changes (December 15, 2025)
-- Restructured main layout header to horizontal compact design with avatar on left
-- Moved app version badge (v1.0) to header right side
-- Reduced margins and padding across all cards for better space utilization
-- Removed bottom version text (now in header)
-- All elements now visible on screen without excessive scrolling
-- Added btn_history and btn_about buttons to activity_main.xml
-- Fixed "variable must be final" error in showHistoryDialog()
-- Added AndroidX core dependency for NotificationCompat
+- **REMOVED**: Sistem deteksi VPN, PacketCapture, HttpCapture
+- **ADDED**: Protect Request Send Service dengan SSL Pinning menggunakan OkHttp
+- **ADDED**: Certificate Pinning untuk acc.co.id domain
+- **ADDED**: Request ID generation untuk setiap request
+- **UPDATED**: Network security config untuk enforce HTTPS only
+- **UPDATED**: Dialog security warning menjadi dialog status protected
+- Mengganti HttpURLConnection dengan OkHttp untuk proteksi SSL bypass
+
+### Security Features
+- SSL Certificate Pinning dengan OkHttp CertificatePinner
+- Request ID unik untuk setiap transaksi
+- HTTPS only (cleartext traffic disabled)
+- Anti MITM (Man-in-the-Middle) attack protection
 
 ## Dependencies
 - androidx.core:core:1.9.0
 - androidx.appcompat:appcompat:1.6.1
-- okhttp-4.9.3.jar (in libs folder)
+- okhttp-4.9.3.jar (in libs folder) - untuk SSL Pinning
 - okio-2.8.0.jar (in libs folder)
 
 ## Build Instructions
@@ -51,3 +56,4 @@ This is an Android project. To build:
 - Send history with clear option
 - Privacy policy dialog
 - Notifications on completion
+- **Protected Request**: SSL Pinning anti bypass capture
