@@ -467,7 +467,7 @@ public class MainActivity extends Activity {
         }
         
         for (FailureInfo info : failureList) {
-            addFailureItemToLayout(layoutItems, info.icon, info.title, info.description + " (" + info.time + ")");
+            addFailureItemToLayout(layoutItems, info.icon, info.title, info.description, info.time);
         }
         
         btnClear.setOnClickListener(new View.OnClickListener() {
@@ -491,15 +491,21 @@ public class MainActivity extends Activity {
     }
     
     private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc) {
+        addFailureItemToLayout(parent, icon, title, desc, "");
+    }
+    
+    private void addFailureItemToLayout(LinearLayout parent, String icon, String title, String desc, String time) {
         View itemView = LayoutInflater.from(this).inflate(R.layout.item_failure_reason, parent, false);
         
         TextView tvIcon = itemView.findViewById(R.id.tv_failure_icon);
         TextView tvTitle = itemView.findViewById(R.id.tv_failure_title);
         TextView tvDesc = itemView.findViewById(R.id.tv_failure_desc);
+        TextView tvTime = itemView.findViewById(R.id.tv_failure_time);
         
         tvIcon.setText(icon);
         tvTitle.setText(title);
         tvDesc.setText(desc);
+        tvTime.setText(time);
         
         parent.addView(itemView);
     }
