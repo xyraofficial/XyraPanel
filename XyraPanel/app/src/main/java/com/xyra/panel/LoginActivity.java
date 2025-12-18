@@ -47,6 +47,12 @@ public class LoginActivity extends Activity {
     private KeyStore keyStore;
     private Cipher cipher;
     private boolean isAuthenticating = false;
+    
+    private static final String KEY_TESTING_MODE = "testing_mode_enabled";
+    private int tapCount = 0;
+    private long lastTapTime = 0;
+    private static final int TAP_THRESHOLD = 300;
+    private static final int REQUIRED_TAPS = 5;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,19 +95,71 @@ public class LoginActivity extends Activity {
                 showRegisterFaceDialog();
             }
         });
+        
+        ivFaceIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                handleFaceIconTap();
+            }
+        });
+    }
+    
+    private void handleFaceIconTap() {
+        long currentTime = System.currentTimeMillis();
+        
+        if (currentTime - lastTapTime > TAP_THRESHOLD) {
+            tapCount = 1;
+        } else {
+            tapCount++;
+        }
+        
+        lastTapTime = currentTime;
+        
+        if (tapCount == REQUIRED_TAPS) {
+            toggleTestingMode();
+            tapCount = 0;
+        }
+    }
+    
+    private void toggleTestingMode() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        boolean currentMode = prefs.getBoolean(KEY_TESTING_MODE, false);
+        boolean newMode = !currentMode;
+        
+        prefs.edit().putBoolean(KEY_TESTING_MODE, newMode).apply();
+        
+        if (newMode) {
+            Toast.makeText(this, "Testing Mode ENABLED ✓", Toast.LENGTH_LONG).show();
+            updateUI();
+        } else {
+            Toast.makeText(this, "Testing Mode DISABLED", Toast.LENGTH_LONG).show();
+            updateUI();
+        }
+    }
+    
+    private boolean isTestingModeEnabled() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        return prefs.getBoolean(KEY_TESTING_MODE, false);
     }
     
     private void updateUI() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         boolean isRegistered = prefs.getBoolean(KEY_FACE_REGISTERED, false);
+        boolean testingMode = isTestingModeEnabled();
         
-        if (isRegistered) {
-            tvStatus.setText("Face ID Terdaftar");
-            tvSubtitle.setText("Gunakan wajah Anda untuk membuka XyraPanel");
+        if (isRegistered || testingMode) {
+            tvStatus.setText(testingMode ? "TESTING MODE - Face ID" : "Face ID Terdaftar");
+            tvStatus.setTextColor(testingMode ? 
+                getResources().getColor(android.R.color.holo_orange_dark) : 
+                getResources().getColor(R.color.colorPrimary));
+            tvSubtitle.setText(testingMode ? 
+                "Mode Testing: Gunakan Face ID mock" : 
+                "Gunakan wajah Anda untuk membuka XyraPanel");
             btnAuthenticate.setVisibility(View.VISIBLE);
-            btnRegisterFace.setText("DAFTAR ULANG FACE ID");
+            btnRegisterFace.setText(testingMode ? "DAFTAR FACE ID (Testing)" : "DAFTAR ULANG FACE ID");
         } else {
             tvStatus.setText("Face ID Belum Terdaftar");
+            tvStatus.setTextColor(getResources().getColor(R.color.colorPrimary));
             tvSubtitle.setText("Daftarkan wajah Anda untuk keamanan");
             btnAuthenticate.setVisibility(View.GONE);
             btnRegisterFace.setText("DAFTAR FACE ID");
@@ -109,6 +167,10 @@ public class LoginActivity extends Activity {
     }
     
     private boolean isBiometricAvailable() {
+        if (isTestingModeEnabled()) {
+            return true;
+        }
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (fingerprintManager != null) {
                 return fingerprintManager.isHardwareDetected() && fingerprintManager.hasEnrolledFingerprints();
@@ -160,6 +222,11 @@ public class LoginActivity extends Activity {
     }
     
     private void startBiometricAuthentication() {
+        if (isTestingModeEnabled()) {
+            mockBiometricAuthentication();
+            return;
+        }
+        
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (!isBiometricAvailable()) {
                 showNoBiometricDialog();
@@ -203,6 +270,21 @@ public class LoginActivity extends Activity {
                 Toast.makeText(this, "Gagal inisialisasi biometrik", Toast.LENGTH_SHORT).show();
             }
         }
+    }
+    
+    private void mockBiometricAuthentication() {
+        showAuthenticationUI(true);
+        isAuthenticating = true;
+        
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (isAuthenticating) {
+                    isAuthenticating = false;
+                    onAuthSuccess();
+                }
+            }
+        }, 1500);
     }
     
     private void showAuthenticationUI(boolean authenticating) {
@@ -275,10 +357,15 @@ public class LoginActivity extends Activity {
         final Button btnCancel = (Button) dialog.findViewById(R.id.btn_cancel);
         final View progressRegister = dialog.findViewById(R.id.progress_register);
         
+        if (isTestingModeEnabled()) {
+            tvDialogStatus.setText("Mode Testing Aktif");
+            tvDialogStatus.setTextColor(Color.parseColor("#FF9800"));
+        }
+        
         btnStartRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!isBiometricAvailable()) {
+                if (!isTestingModeEnabled() && !isBiometricAvailable()) {
                     tvDialogStatus.setText("Biometrik Tidak Tersedia");
                     tvDialogStatus.setTextColor(Color.parseColor("#F44336"));
                     tvDialogInfo.setText("Pastikan Face ID/Fingerprint sudah diaktifkan di pengaturan perangkat Anda");
@@ -287,8 +374,13 @@ public class LoginActivity extends Activity {
                 
                 progressRegister.setVisibility(View.VISIBLE);
                 btnStartRegister.setEnabled(false);
-                tvDialogStatus.setText("Memindai wajah...");
+                tvDialogStatus.setText(isTestingModeEnabled() ? "Scanning Face (Testing)..." : "Memindai wajah...");
                 tvDialogInfo.setText("Posisikan wajah Anda di depan kamera");
+                
+                if (isTestingModeEnabled()) {
+                    mockFaceRegistration(dialog, progressRegister, btnStartRegister, tvDialogStatus, tvDialogInfo);
+                    return;
+                }
                 
                 generateKey();
                 
@@ -365,6 +457,36 @@ public class LoginActivity extends Activity {
         });
         
         dialog.show();
+    }
+    
+    private void mockFaceRegistration(final Dialog dialog, final View progressRegister, 
+            final Button btnStartRegister, final TextView tvDialogStatus, final TextView tvDialogInfo) {
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressRegister.setVisibility(View.GONE);
+                
+                SharedPreferences.Editor editor = 
+                    getSharedPreferences(PREFS_NAME, MODE_PRIVATE).edit();
+                editor.putBoolean(KEY_FACE_REGISTERED, true);
+                editor.putBoolean(KEY_BIOMETRIC_ENABLED, true);
+                editor.apply();
+                
+                tvDialogStatus.setText("Mock Registration Berhasil!");
+                tvDialogStatus.setTextColor(Color.parseColor("#4CAF50"));
+                tvDialogInfo.setText("Face ID (Testing) berhasil didaftarkan");
+                
+                new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        dialog.dismiss();
+                        updateUI();
+                        Toast.makeText(LoginActivity.this, 
+                            "Face ID mock berhasil didaftarkan!", Toast.LENGTH_SHORT).show();
+                    }
+                }, 1500);
+            }
+        }, 1500);
     }
     
     private void showNoBiometricDialog() {

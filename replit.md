@@ -37,8 +37,15 @@ XyraPanel/
   - Icon Face ID dan animasi scanning
   - Penyimpanan status pendaftaran di SharedPreferences
 
+- **Testing Mode (Development Feature)**:
+  - Tap icon Face ID 5x dalam 1.5 detik untuk unlock Testing Mode
+  - Digunakan untuk testing tanpa device punya biometrik
+  - Mock Face ID registration dan authentication
+  - Indicator visual "TESTING MODE" di UI dengan warna orange
+  - Dapat di-toggle on/off dengan multiple taps
+
 - **Files Added**:
-  - `LoginActivity.java` - Activity login dengan Face ID
+  - `LoginActivity.java` - Activity login dengan Face ID + Testing Mode
   - `activity_login.xml` - Layout halaman login
   - `dialog_register_face.xml` - Dialog pendaftaran wajah
   - `dialog_no_biometric.xml` - Dialog jika biometrik tidak tersedia
