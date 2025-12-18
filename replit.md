@@ -1,160 +1,90 @@
-# XyraPanel
+# TermuxToolBox
 
 ## Overview
-XyraPanel adalah aplikasi Android untuk pengiriman OTP ACC.co.id. Aplikasi ini mendukung pengiriman via SMS dan WhatsApp.
+TermuxToolBox adalah aplikasi Android untuk mengelola dan berinteraksi dengan Termux. Aplikasi ini menyediakan toolbox lengkap untuk install packages, menjalankan commands, dan menggunakan Termux API.
 
-**CATATAN PENTING**: Ini adalah proyek Android Native (Java) yang harus di-build dengan Android Studio atau AIDE. Ini BUKAN proyek web atau Expo React Native, sehingga tidak bisa dijalankan di Replit.
+**CATATAN PENTING**: Ini adalah proyek Android Native (Java) yang harus di-build dengan Android Studio atau AIDE.
 
 ## Project Structure
 ```
-XyraPanel/
+TermuxToolBox/
 ├── app/
 │   ├── src/main/
-│   │   ├── java/com/xyra/panel/
-│   │   │   ├── LoginActivity.java  - Face ID Login Screen
-│   │   │   └── MainActivity.java   - Main Application
+│   │   ├── java/com/termux/toolbox/
+│   │   │   ├── MainActivity.java      - Main UI dengan toolbox
+│   │   │   ├── TermuxApiHelper.java   - Helper untuk Termux API
+│   │   │   ├── TermuxResultReceiver.java - Receiver untuk hasil command
+│   │   │   └── ToolItem.java          - Model untuk tool items
 │   │   ├── res/
 │   │   │   ├── drawable/     - Button styles, icons, backgrounds
-│   │   │   ├── layout/       - Activity dan dialog layouts
-│   │   │   ├── menu/         - Navigation drawer menu
-│   │   │   ├── values/       - Colors, strings, styles
-│   │   │   └── xml/          - Network security config
+│   │   │   ├── layout/       - Activity dan item layouts
+│   │   │   └── values/       - Colors, strings, styles
 │   │   └── AndroidManifest.xml
 │   └── build.gradle
 ├── build.gradle
 └── settings.gradle
 ```
 
-## Recent Changes
+## Features
 
-### New Feature: Face ID Login (December 18, 2025)
-- **NEW**: Face ID / Biometric Login Screen
-  - LoginActivity sebagai launcher activity baru
-  - Fitur pendaftaran Face ID menggunakan Android BiometricPrompt API
-  - Autentikasi wajah untuk membuka XyraPanel
-  - Dialog pendaftaran wajah dengan panduan lengkap
-  - Fallback untuk perangkat tanpa biometrik
-  - Icon Face ID dan animasi scanning
-  - Penyimpanan status pendaftaran di SharedPreferences
+### 1. Termux Connection Status
+- Cek apakah Termux terinstall
+- Cek apakah Termux:API terinstall
+- Tombol untuk install/open Termux
 
-- **Testing Mode (Development Feature)**:
-  - Tap icon Face ID 5x dalam 1.5 detik untuk unlock Testing Mode
-  - Digunakan untuk testing tanpa device punya biometrik
-  - Mock Face ID registration dan authentication
-  - Indicator visual "TESTING MODE" di UI dengan warna orange
-  - Dapat di-toggle on/off dengan multiple taps
+### 2. Custom Command Execution
+- Input field untuk menjalankan command custom
+- Command dijalankan langsung di Termux
 
-- **Files Added**:
-  - `LoginActivity.java` - Activity login dengan Face ID + Testing Mode
-  - `activity_login.xml` - Layout halaman login
-  - `dialog_register_face.xml` - Dialog pendaftaran wajah
-  - `dialog_no_biometric.xml` - Dialog jika biometrik tidak tersedia
-  - `ic_face_id.xml` - Icon Face ID
-  - `ic_face_scan.xml` - Icon scanning wajah
-  - `ic_warning_biometric.xml` - Icon peringatan
+### 3. Quick Tools (20+ Tools)
+**System:**
+- Update System (pkg update & upgrade)
+- Setup Storage (termux-setup-storage)
+- Install Termux:API
 
-- **Permissions Added**:
-  - `USE_BIOMETRIC` - Untuk biometrik API baru
-  - `USE_FINGERPRINT` - Untuk kompatibilitas API lama
+**Development:**
+- Python, Node.js, PHP, Ruby, Golang, Git, Clang
 
-### Previous Changes (December 15, 2025)
+**Network:**
+- Nmap, Wget, cURL, OpenSSH
 
-### Latest Fixes (December 15, 2025)
-- **FIXED**: Privacy Policy checkbox - now checked automatically when opened from navigation (if already accepted)
-  - When user opens Privacy Policy from sidebar after initial acceptance, checkbox is pre-checked
-  - Continue button is enabled automatically
-  
-- **IMPROVED**: History dialog with smooth table layout
-  - Replaced card-style layout with clean table format
-  - Added column headers: No, Nomor, Via, Hasil
-  - Alternating row colors for better readability
-  - Compact display showing success/total count
-  - Single line text (no wrapping) for clean appearance
-  - Provider shows "SMS" or "WA" (abbreviated)
+**Utilities:**
+- Nano, Vim, Htop, Neofetch
 
-- **REMOVED**: History and About buttons from main screen
-  - Bottom buttons removed for cleaner UI
-  - Features now accessible only through navigation drawer
+**Media:**
+- FFmpeg, ImageMagick
 
-- **FIXED**: All dialog layouts - dialogs were too narrow causing text to wrap vertically
-  - Set all dialog widths to 90% of screen width using WindowManager.LayoutParams
-  - Affected dialogs: About, History, Privacy, Report Problem, Failure Info
-  
-- **NEW**: Swipe gesture to open sidebar
-  - Swipe from left edge of screen to right to open navigation drawer
-  - Swipe left anywhere to close drawer when open
-  - Uses GestureDetector with dispatchTouchEvent for smooth handling
+### 4. Termux API Integration
+- Run commands via Intent
+- Shell command execution
+- Background execution support
+- Toast, Vibrate, Notification API
 
-### New Features Added
-- **Navigation Bar (Toolbar)**: Header dengan tombol menu hamburger
-- **Sidebar (Navigation Drawer)**: Menu geser dari kiri dengan opsi:
-  - Beranda
-  - Riwayat
-  - Tentang
-  - Laporkan Masalah
-  - Kebijakan Privasi
-- **Laporkan Masalah**: Fitur untuk mengirim email ke developer
-  - Menggunakan Intent Email (aman, tidak perlu password)
-  - Otomatis mengisi info perangkat
-  - Membuka aplikasi email bawaan pengguna
+## Permissions
+- `INTERNET` - Network access
+- `READ/WRITE_EXTERNAL_STORAGE` - File access
+- `VIBRATE` - Haptic feedback
+- `com.termux.permission.RUN_COMMAND` - Termux command execution
 
-### Previous Fixes
-- **FIXED**: SSL Pin verification failed error (removed invalid cert pinning)
-- **FIXED**: Duplicate "Tidak Ada Jaringan" count issue
-- **FIXED**: Time display now shows correctly in failure info dialog
-- **ADDED**: Auto-disable "Mulai Kirim" button when input invalid
-- **ADDED**: Vibration feedback on success/failure
-- **ADDED**: Hide keyboard when starting send
-- **ADDED**: Contact buttons (Email & WhatsApp) in About dialog
-- **ADDED**: Changelog section in About dialog
-- **ADDED**: Disclaimer section in About dialog
-- **UPDATED**: Developer name to "XyraOfficial"
-- **UPDATED**: Stats panel label "Gagal" -> "Total Kirim"
-
-### Key Features
-- **Face ID Login** - Biometric authentication untuk keamanan
-- **Daftar Face ID** - Pendaftaran wajah pengguna
-- Phone number input with real-time validation
-- Quick select buttons (1, 3, 5, Random)
-- SMS/WhatsApp provider selection
-- Progress tracking with success/total/avg stats
-- Send history with clear option
-- Privacy policy dialog
-- Notifications on completion
-- Failure Info Icon with detailed error list
-- Vibration feedback (ringan saat sukses/gagal)
-- Navigation Drawer dengan menu lengkap
-- Fitur Laporkan Masalah via Email Intent
-
-### Failure Detection Features
-- VPN Detection
-- HTTP Capture App Detection
-- Network Availability Check
-- Request failure reasons with timestamps
-
-## Developer Info
-- Developer: XyraOfficial
-- Email: xyraofficialsup@gmail.com
-- WhatsApp: +62895325844493
-
-## Dependencies
-- AndroidX AppCompat 1.6.1
-- AndroidX Core 1.12.0
-- AndroidX DrawerLayout 1.2.0
-- Google Material Design 1.11.0
-- VIBRATE permission
+## How It Works
+1. App checks if Termux is installed
+2. User selects tool or enters custom command
+3. App sends Intent to Termux RunCommandService
+4. Termux executes the command
+5. Result shown in Termux terminal
 
 ## Build Instructions
-This is a native Android project. To build:
 1. Open project in Android Studio or AIDE
 2. Sync Gradle files
-3. Build APK (Build > Build Bundle(s) / APK(s) > Build APK(s))
-4. Install APK on Android device
+3. Build APK
+4. Install on Android device with Termux
 
-## Note About Replit
-Proyek Android native TIDAK BISA dijalankan di Replit karena:
-- Tidak ada Android SDK/Emulator
-- Memerlukan lingkungan build Android (Gradle)
-- APK harus di-install di device Android
+## Requirements
+- Android 5.0+ (API 21)
+- Termux installed from F-Droid (recommended)
+- Termux:API for extended features
 
-Gunakan Android Studio atau AIDE untuk build dan test aplikasi.
+## Developer Info
+- Package: com.termux.toolbox
+- Min SDK: 21
+- Target SDK: 33
