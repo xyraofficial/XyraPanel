@@ -11,7 +11,8 @@ XyraPanel/
 ├── app/
 │   ├── src/main/
 │   │   ├── java/com/xyra/panel/
-│   │   │   └── MainActivity.java
+│   │   │   ├── LoginActivity.java  - Face ID Login Screen
+│   │   │   └── MainActivity.java   - Main Application
 │   │   ├── res/
 │   │   │   ├── drawable/     - Button styles, icons, backgrounds
 │   │   │   ├── layout/       - Activity dan dialog layouts
@@ -24,7 +25,32 @@ XyraPanel/
 └── settings.gradle
 ```
 
-## Recent Changes (December 15, 2025)
+## Recent Changes
+
+### New Feature: Face ID Login (December 18, 2025)
+- **NEW**: Face ID / Biometric Login Screen
+  - LoginActivity sebagai launcher activity baru
+  - Fitur pendaftaran Face ID menggunakan Android BiometricPrompt API
+  - Autentikasi wajah untuk membuka XyraPanel
+  - Dialog pendaftaran wajah dengan panduan lengkap
+  - Fallback untuk perangkat tanpa biometrik
+  - Icon Face ID dan animasi scanning
+  - Penyimpanan status pendaftaran di SharedPreferences
+
+- **Files Added**:
+  - `LoginActivity.java` - Activity login dengan Face ID
+  - `activity_login.xml` - Layout halaman login
+  - `dialog_register_face.xml` - Dialog pendaftaran wajah
+  - `dialog_no_biometric.xml` - Dialog jika biometrik tidak tersedia
+  - `ic_face_id.xml` - Icon Face ID
+  - `ic_face_scan.xml` - Icon scanning wajah
+  - `ic_warning_biometric.xml` - Icon peringatan
+
+- **Permissions Added**:
+  - `USE_BIOMETRIC` - Untuk biometrik API baru
+  - `USE_FINGERPRINT` - Untuk kompatibilitas API lama
+
+### Previous Changes (December 15, 2025)
 
 ### Latest Fixes (December 15, 2025)
 - **FIXED**: Privacy Policy checkbox - now checked automatically when opened from navigation (if already accepted)
@@ -79,6 +105,8 @@ XyraPanel/
 - **UPDATED**: Stats panel label "Gagal" -> "Total Kirim"
 
 ### Key Features
+- **Face ID Login** - Biometric authentication untuk keamanan
+- **Daftar Face ID** - Pendaftaran wajah pengguna
 - Phone number input with real-time validation
 - Quick select buttons (1, 3, 5, Random)
 - SMS/WhatsApp provider selection

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#1A1A2E"
+    android:gravity="center"
+    android:padding="32dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:background="@drawable/card_background"
+        android:padding="32dp">
+
+        <FrameLayout
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginBottom="24dp">
+
+            <ImageView
+                android:id="@+id/iv_face_icon"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_face_id"
+                android:scaleType="fitCenter" />
+
+            <ProgressBar
+                android:id="@+id/progress_indicator"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:indeterminate="true"
+                android:indeterminateTint="#6C63FF" />
+        </FrameLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="XyraPanel"
+            android:textColor="#FFFFFF"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Face ID Login"
+            android:textColor="#6C63FF"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Gunakan wajah Anda untuk membuka aplikasi"
+            android:textColor="#B0B0B0"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_marginBottom="32dp" />
+
+        <Button
+            android:id="@+id/btn_authenticate"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="BUKA DENGAN FACE ID"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_primary"
+            android:layout_marginBottom="16dp" />
+
+        <Button
+            android:id="@+id/btn_register_face"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="DAFTAR FACE ID"
+            android:textColor="#6C63FF"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/button_ios_secondary" />
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Powered by Android Biometric API"
+        android:textColor="#666666"
+        android:textSize="12sp"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
