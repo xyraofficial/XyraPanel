@@ -1,97 +1,73 @@
-# XyraTermux
+# XyraTermux ToolBox
 
 ## Overview
-XyraTermux adalah aplikasi Android untuk mengeksekusi command langsung di Termux. Aplikasi ini menyediakan interface sederhana untuk mengirim command ke Termux dan melihat hasilnya.
+XyraTermux ToolBox adalah koleksi lengkap informasi, script, dan tools untuk Termux. Berisi dokumentasi, script siap pakai, dan tips berguna.
 
-**Project Type**: Android Native (Java) - AIDE Compatible
-
-## Project Structure
+## Struktur Project
 ```
 XyraTermux/
-├── app/
-│   ├── src/main/
-│   │   ├── java/com/xyra/termux/
-│   │   │   └── MainActivity.java         - Main UI Activity
-│   │   ├── res/
-│   │   │   ├── drawable/                 - Drawable resources
-│   │   │   └── values/
-│   │   │       ├── colors.xml            - Color definitions
-│   │   │       ├── strings.xml           - String resources
-│   │   │       └── styles.xml            - Theme styles
-│   │   └── AndroidManifest.xml           - App manifest
-│   └── build.gradle                      - App build configuration
-├── build.gradle                          - Root build configuration
-├── settings.gradle                       - Gradle settings
-└── app/proguard-rules.pro               - ProGuard rules
+├── info/
+│   ├── TERMUX_BASICS.md           - Pengenalan Termux
+│   └── USEFUL-COMMANDS.md         - Perintah berguna
+├── scripts/
+│   ├── 00-SETUP.sh                - Setup environment
+│   ├── 01-SYSTEM-INFO.sh          - Informasi sistem
+│   ├── 02-INSTALL-TOOLS.sh        - Install tools development
+│   ├── 03-BACKUP.sh               - Backup configuration
+│   └── 04-PYTHON-SETUP.sh         - Setup Python environment
+├── docs/
+│   └── TROUBLESHOOTING.md         - Solusi masalah umum
+└── README.md
 ```
 
-## Features
+## Konten
 
-### 1. Command Input
-- EditText untuk menginput custom Termux command
-- Support semua command yang bisa dijalankan di Termux
+### Info Files
+- **TERMUX_BASICS.md** - Pengenalan Termux, instalasi, perintah dasar, storage access
+- **USEFUL-COMMANDS.md** - Text processing, network, system, archive, development commands
 
-### 2. Execute Button
-- Mengirim command ke Termux via Intent Broadcast
-- Menggunakan Termux Intent API yang resmi
-- Output terlihat di terminal Termux
+### Scripts
+1. **00-SETUP.sh** - Update packages, setup storage, install essential tools
+2. **01-SYSTEM-INFO.sh** - Display sistem info (OS, disk, memory, versions)
+3. **02-INSTALL-TOOLS.sh** - Interactive tool installer (Python, Node, Git, SSH, FFmpeg)
+4. **03-BACKUP.sh** - Backup config files dan packages list
+5. **04-PYTHON-SETUP.sh** - Setup Python development environment
 
-### 3. Open Termux Button
-- Launch Termux app jika terinstall
-- Link ke Play Store jika belum terinstall
+### Docs
+- **TROUBLESHOOTING.md** - Solusi untuk common issues, performance tips
 
-### 4. Result Display
-- Feedback yang user-friendly
-- ScrollView untuk long text
+## Cara Menggunakan
 
-## Permissions
-- `INTERNET` - Network access
-- `READ/WRITE_EXTERNAL_STORAGE` - File access
-- `VIBRATE` - Haptic feedback
-- `com.termux.permission.RUN_COMMAND` - Termux command execution
-
-## How It Works
-1. User input command di input field
-2. Click "Execute" button
-3. App mengirim broadcast intent ke Termux
-4. Termux menerima command dan mengeksekusinya
-5. Output muncul di terminal Termux
-
-## Build Instructions
-
-### Using AIDE:
-1. Open project di AIDE
-2. Sync Gradle
-3. Build & Run APK
-
-### Using Gradle CLI:
+### Baca Dokumentasi
 ```bash
-./gradlew build
-./gradlew installDebug
+cat info/TERMUX_BASICS.md
+cat info/USEFUL-COMMANDS.md
+cat docs/TROUBLESHOOTING.md
 ```
 
-## Requirements
-- Android SDK 21+ (Android 5.0)
-- Java 1.8+
-- Gradle 7.4.2+
-- Termux installed (F-Droid recommended)
+### Jalankan Script (di Termux)
+```bash
+bash scripts/00-SETUP.sh          # Setup
+bash scripts/01-SYSTEM-INFO.sh    # Cek info
+bash scripts/02-INSTALL-TOOLS.sh  # Install tools
+bash scripts/03-BACKUP.sh         # Backup
+bash scripts/04-PYTHON-SETUP.sh   # Setup Python
+```
 
-## Developer Info
-- **Package**: com.xyra.termux
-- **Min SDK**: 21
-- **Target SDK**: 33
-- **Build System**: Gradle (AIDE compatible)
-- **External Libraries**: None
+## Fitur
 
-## Struktur untuk AIDE
-- ✅ Tanpa Maven external library
-- ✅ Gradle-based (AIDE support)
-- ✅ Material Design
-- ✅ Single Activity Architecture
-- ✅ Programmatic UI
-- ✅ Uses Termux Intent Broadcast API
+✅ Dokumentasi lengkap tentang Termux
+✅ 5+ ready-to-use scripts
+✅ Troubleshooting guide
+✅ Command reference
+✅ Setup automation
+
+## Target Users
+
+- Termux beginners - Dokumentasi lengkap
+- Termux power users - Useful scripts & commands
+- Developers - Development tools setup
+- System administrators - Backup & maintenance scripts
 
 ## Status
-- ✅ Tested & working on Android device
-- ✅ Communicates with Termux via Intent Broadcast
-- ✅ Ready for production build
+✅ Complete & Ready to Use
