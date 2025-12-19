@@ -14,8 +14,6 @@ XyraTermux/
 │   │   │   └── MainActivity.java         - Main UI Activity
 │   │   ├── res/
 │   │   │   ├── drawable/                 - Drawable resources
-│   │   │   ├── layout/                   - Layout files (optional)
-│   │   │   ├── mipmap-mdpi/              - App icons
 │   │   │   └── values/
 │   │   │       ├── colors.xml            - Color definitions
 │   │   │       ├── strings.xml           - String resources
@@ -31,18 +29,19 @@ XyraTermux/
 
 ### 1. Command Input
 - EditText untuk menginput custom Termux command
-- Minimal validation
+- Support semua command yang bisa dijalankan di Termux
 
 ### 2. Execute Button
-- Mengirim command ke Termux via Intent
-- Support Termux API (com.termux.RUN_COMMAND)
+- Mengirim command ke Termux via Intent Broadcast
+- Menggunakan Termux Intent API yang resmi
+- Output terlihat di terminal Termux
 
 ### 3. Open Termux Button
 - Launch Termux app jika terinstall
 - Link ke Play Store jika belum terinstall
 
 ### 4. Result Display
-- TextView untuk menampilkan output
+- Feedback yang user-friendly
 - ScrollView untuk long text
 
 ## Permissions
@@ -50,6 +49,13 @@ XyraTermux/
 - `READ/WRITE_EXTERNAL_STORAGE` - File access
 - `VIBRATE` - Haptic feedback
 - `com.termux.permission.RUN_COMMAND` - Termux command execution
+
+## How It Works
+1. User input command di input field
+2. Click "Execute" button
+3. App mengirim broadcast intent ke Termux
+4. Termux menerima command dan mengeksekusinya
+5. Output muncul di terminal Termux
 
 ## Build Instructions
 
@@ -66,7 +72,7 @@ XyraTermux/
 
 ## Requirements
 - Android SDK 21+ (Android 5.0)
-- Java 11+
+- Java 1.8+
 - Gradle 7.4.2+
 - Termux installed (F-Droid recommended)
 
@@ -74,16 +80,18 @@ XyraTermux/
 - **Package**: com.xyra.termux
 - **Min SDK**: 21
 - **Target SDK**: 33
-- **Build System**: Gradle
-- **External Libraries**: None (Minimal dependencies for AIDE)
+- **Build System**: Gradle (AIDE compatible)
+- **External Libraries**: None
 
 ## Struktur untuk AIDE
 - ✅ Tanpa Maven external library
 - ✅ Gradle-based (AIDE support)
 - ✅ Material Design
 - ✅ Single Activity Architecture
-- ✅ Programmatic UI (no XML layouts needed)
+- ✅ Programmatic UI
+- ✅ Uses Termux Intent Broadcast API
 
 ## Status
-- Siap untuk di-build dengan AIDE atau Android Studio
-- Minimal dependencies - cocok untuk low-spec devices
+- ✅ Tested & working on Android device
+- ✅ Communicates with Termux via Intent Broadcast
+- ✅ Ready for production build

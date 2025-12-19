@@ -99,18 +99,18 @@ public class MainActivity extends Activity implements OnClickListener {
         }
         
         try {
-            Intent intent = new Intent();
-            intent.setClassName("com.termux", "com.termux.app.RunCommandService");
-            intent.setAction("com.termux.RUN_COMMAND");
-            intent.putExtra("com.termux.execute", "RUN_COMMAND");
+            // Use Termux Intent Broadcast API (proper way)
+            Intent intent = new Intent("com.termux.RUN_COMMAND");
+            intent.setPackage("com.termux");
             intent.putExtra("com.termux.RUN_COMMAND", command);
             
-            startService(intent);
-            resultText.setText("Command: " + command + "\n\nSent to Termux...");
+            sendBroadcast(intent);
+            resultText.setText("✓ Command sent to Termux:\n" + command + "\n\nCheck Termux terminal for output");
+            Toast.makeText(this, "Command sent to Termux", Toast.LENGTH_SHORT).show();
             
         } catch (Exception e) {
+            resultText.setText("Error: " + e.getMessage() + "\n\nMake sure Termux is installed");
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            resultText.setText("Error: " + e.getMessage());
         }
     }
     
@@ -123,6 +123,7 @@ public class MainActivity extends Activity implements OnClickListener {
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Termux not installed", Toast.LENGTH_SHORT).show();
+                resultText.setText("Termux is not installed.\n\nOpening Play Store...");
                 
                 Intent playStore = new Intent(Intent.ACTION_VIEW);
                 playStore.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.termux"));
@@ -130,6 +131,7 @@ public class MainActivity extends Activity implements OnClickListener {
             }
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            resultText.setText("Error opening Termux: " + e.getMessage());
         }
     }
 }
