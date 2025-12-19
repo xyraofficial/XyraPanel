@@ -1,0 +1,47 @@
+# Gradle files
+.gradle/
+build/
+gradle-app.setting*
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Android
+*.apk
+*.ap_
+*.dex
+*.class
+bin/
+gen/
+.idea/
+*.iml
+*.keystore
+*.jks
+local.properties
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.log
+
+# IntelliJ IDEA
+.idea/
+*.ipr
+*.iws
+*.iml
+out/
+
+# AIDE specific
+.AIDE_SRC/
+.AIDE/
+
+# Other
+.DS_Store
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.sublime-workspace
