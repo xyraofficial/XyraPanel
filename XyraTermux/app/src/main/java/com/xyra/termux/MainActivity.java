@@ -2,67 +2,92 @@ package com.xyra.termux;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.LinearLayout.LayoutParams;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+public class MainActivity extends Activity implements OnClickListener {
 
     private EditText commandInput;
     private TextView resultText;
+    private Button executeButton;
+    private Button openTermuxButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        // Create main layout
         LinearLayout mainLayout = new LinearLayout(this);
         mainLayout.setOrientation(LinearLayout.VERTICAL);
         mainLayout.setPadding(16, 16, 16, 16);
         
+        // Title
         TextView titleText = new TextView(this);
         titleText.setText("XyraTermux");
         titleText.setTextSize(24);
         titleText.setTextColor(0xFF000000);
         mainLayout.addView(titleText);
         
+        // Subtitle
         TextView subtitle = new TextView(this);
         subtitle.setText("Termux Command Executor");
         subtitle.setTextSize(14);
         subtitle.setTextColor(0xFF666666);
         mainLayout.addView(subtitle);
         
+        // Command input
         commandInput = new EditText(this);
         commandInput.setHint("Enter Termux command...");
         commandInput.setMinLines(3);
         mainLayout.addView(commandInput);
         
-        Button executeButton = new Button(this);
+        // Execute button
+        executeButton = new Button(this);
         executeButton.setText("Execute");
-        executeButton.setOnClickListener(v -> executeCommand());
+        executeButton.setOnClickListener(this);
         mainLayout.addView(executeButton);
         
-        Button openTermuxButton = new Button(this);
+        // Open Termux button
+        openTermuxButton = new Button(this);
         openTermuxButton.setText("Open Termux");
-        openTermuxButton.setOnClickListener(v -> openTermux());
+        openTermuxButton.setOnClickListener(this);
         mainLayout.addView(openTermuxButton);
         
+        // Result display
         resultText = new TextView(this);
         resultText.setText("Output will appear here...");
         resultText.setTextColor(0xFF333333);
+        
         ScrollView scrollView = new ScrollView(this);
         scrollView.addView(resultText);
-        mainLayout.addView(scrollView, new LinearLayout.LayoutParams(
-            LinearLayout.LayoutParams.MATCH_PARENT, 
-            LinearLayout.LayoutParams.MATCH_PARENT, 
-            1f
-        ));
+        
+        LayoutParams scrollParams = new LayoutParams(
+            LayoutParams.MATCH_PARENT, 
+            LayoutParams.MATCH_PARENT
+        );
+        scrollParams.weight = 1.0f;
+        mainLayout.addView(scrollView, scrollParams);
         
         setContentView(mainLayout);
+    }
+    
+    @Override
+    public void onClick(View v) {
+        if (v == executeButton) {
+            executeCommand();
+        } else if (v == openTermuxButton) {
+            openTermux();
+        }
     }
     
     private void executeCommand() {
@@ -79,20 +104,9 @@ public class MainActivity extends Activity {
             intent.setAction("com.termux.RUN_COMMAND");
             intent.putExtra("com.termux.execute", "RUN_COMMAND");
             intent.putExtra("com.termux.RUN_COMMAND", command);
-            intent.putExtra("com.termux.RUN_COMMAND.RESULT_RECEIVER", new android.os.ResultReceiver(null) {
-                @Override
-                protected void onReceiveResult(int resultCode, Bundle resultData) {
-                    if (resultCode == 0) {
-                        String output = resultData.getString("com.termux.execute.result");
-                        resultText.setText("Output:\n" + (output != null ? output : "Command executed"));
-                    } else {
-                        resultText.setText("Error: Command execution failed");
-                    }
-                }
-            });
             
             startService(intent);
-            resultText.setText("Command sent to Termux...");
+            resultText.setText("Command: " + command + "\n\nSent to Termux...");
             
         } catch (Exception e) {
             Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -102,11 +116,14 @@ public class MainActivity extends Activity {
     
     private void openTermux() {
         try {
-            Intent intent = getPackageManager().getLaunchIntentForPackage("com.termux");
+            PackageManager pm = getPackageManager();
+            Intent intent = pm.getLaunchIntentForPackage("com.termux");
+            
             if (intent != null) {
                 startActivity(intent);
             } else {
                 Toast.makeText(this, "Termux not installed", Toast.LENGTH_SHORT).show();
+                
                 Intent playStore = new Intent(Intent.ACTION_VIEW);
                 playStore.setData(Uri.parse("https://play.google.com/store/apps/details?id=com.termux"));
                 startActivity(playStore);
