@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">XyraTermux</string>
+    <string name="app_slogan">Termux ToolBox</string>
+    
+    <!-- Main Menu -->
+    <string name="menu_command_executor">Command Executor</string>
+    <string name="menu_system_info">System Info</string>
+    <string name="menu_install_tools">Install Tools</string>
+    <string name="menu_backup">Backup</string>
+    
+    <!-- Buttons -->
+    <string name="btn_execute">Execute</string>
+    <string name="btn_open_termux">Open Termux</string>
+    <string name="btn_install">Install</string>
+    <string name="btn_back">Back</string>
+    <string name="btn_refresh">Refresh</string>
+    <string name="btn_copy">Copy</string>
+    <string name="btn_share">Share</string>
+    
+    <!-- Hints -->
+    <string name="hint_enter_command">Enter Termux command...</string>
+    <string name="hint_search">Search tools...</string>
+    
+    <!-- Messages -->
+    <string name="msg_command_sent">Command sent to Termux</string>
+    <string name="msg_termux_not_installed">Termux not installed</string>
+    <string name="msg_error">Error</string>
+    <string name="msg_success">Success</string>
+    <string name="msg_loading">Loading...</string>
+</resources>

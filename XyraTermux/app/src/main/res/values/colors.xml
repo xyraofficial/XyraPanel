@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- iOS-Style Colors -->
+    <color name="primary">#007AFF</color>
+    <color name="primary_dark">#0051D5</color>
+    <color name="primary_light">#5AC8FA</color>
+    
+    <color name="accent">#FF2D55</color>
+    <color name="accent_dark">#D60040</color>
+    
+    <!-- iOS System Colors -->
+    <color name="background">#F5F5F7</color>
+    <color name="background_dark">#FFFFFF</color>
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_shadow">#E5E5EA</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="text_tertiary">#999999</color>
+    <color name="text_light">#CCCCCC</color>
+    
+    <!-- Status Colors -->
+    <color name="success">#34C759</color>
+    <color name="warning">#FF9500</color>
+    <color name="error">#FF3B30</color>
+    <color name="info">#00B4DB</color>
+    
+    <!-- Separator -->
+    <color name="separator">#E5E5EA</color>
+    <color name="separator_dark">#D1D1D6</color>
+</resources>

@@ -1,73 +1,89 @@
-# XyraTermux ToolBox
+# XyraTermux - Full Android App
 
 ## Overview
-XyraTermux ToolBox adalah koleksi lengkap informasi, script, dan tools untuk Termux. Berisi dokumentasi, script siap pakai, dan tips berguna.
+XyraTermux adalah aplikasi Android ToolBox untuk Termux dengan tema iOS yang smooth dan modern. Fitur lengkap untuk command execution, system info, tools installation, dan backup.
 
-## Struktur Project
+## Architecture
+
+- **Multi-Activity Structure**: MainActivity (menu) + 4 activities
+- **AIDE Compatible**: Gradle-based, no external libraries
+- **iOS-Style Theme**: Modern colors, smooth UI, 44dp minimum touch target
+- **Material Design**: Proper spacing, typography, shadows
+
+## Activities
+
+1. **MainActivity** - Menu utama dengan 4 pilihan
+2. **CommandActivity** - Execute Termux command
+3. **SystemInfoActivity** - Display system information
+4. **ToolsActivity** - Install development tools
+5. **BackupActivity** - Backup configuration
+
+## Design System
+
+### Colors (iOS-Inspired)
+- Primary: #007AFF (iOS Blue)
+- Accent: #FF2D55 (iOS Red)
+- Background: #F5F5F7 (iOS Light Gray)
+- Success: #34C759, Warning: #FF9500, Error: #FF3B30
+
+### Typography
+- Heading: 28-32sp, Bold
+- Subheading: 18sp, Bold
+- Body: 16sp
+- Caption: 12-14sp
+
+### Spacing
+- Padding: 16dp
+- Margins: 8-24dp
+- Button height: 44-56dp
+
+## Build & Run
+
+### With AIDE
+1. Open XyraTermux in AIDE
+2. Sync Gradle
+3. Build & Run
+
+### With Gradle CLI
+```bash
+./gradlew build
+./gradlew installDebug
+```
+
+## File Structure
 ```
 XyraTermux/
-├── info/
-│   ├── TERMUX_BASICS.md           - Pengenalan Termux
-│   └── USEFUL-COMMANDS.md         - Perintah berguna
-├── scripts/
-│   ├── 00-SETUP.sh                - Setup environment
-│   ├── 01-SYSTEM-INFO.sh          - Informasi sistem
-│   ├── 02-INSTALL-TOOLS.sh        - Install tools development
-│   ├── 03-BACKUP.sh               - Backup configuration
-│   └── 04-PYTHON-SETUP.sh         - Setup Python environment
-├── docs/
-│   └── TROUBLESHOOTING.md         - Solusi masalah umum
-└── README.md
+├── app/src/main/
+│   ├── java/com/xyra/termux/
+│   │   ├── MainActivity.java
+│   │   ├── CommandActivity.java
+│   │   ├── SystemInfoActivity.java
+│   │   ├── ToolsActivity.java
+│   │   └── BackupActivity.java
+│   ├── res/
+│   │   ├── drawable/ (shapes, icons)
+│   │   └── values/ (colors, strings, styles)
+│   └── AndroidManifest.xml
+├── build.gradle
+└── settings.gradle
 ```
 
-## Konten
+## Features
 
-### Info Files
-- **TERMUX_BASICS.md** - Pengenalan Termux, instalasi, perintah dasar, storage access
-- **USEFUL-COMMANDS.md** - Text processing, network, system, archive, development commands
+✅ Command Executor - Run any Termux command
+✅ System Information - Device, Android, Java, Memory info
+✅ Tools Installation - Python, Node, Git, SSH, FFmpeg, etc
+✅ Backup System - Config & packages backup
+✅ iOS-Style Theme - Modern, smooth, professional
+✅ Multi-Activity Navigation - Clean architecture
+✅ AIDE Compatible - No external libraries
 
-### Scripts
-1. **00-SETUP.sh** - Update packages, setup storage, install essential tools
-2. **01-SYSTEM-INFO.sh** - Display sistem info (OS, disk, memory, versions)
-3. **02-INSTALL-TOOLS.sh** - Interactive tool installer (Python, Node, Git, SSH, FFmpeg)
-4. **03-BACKUP.sh** - Backup config files dan packages list
-5. **04-PYTHON-SETUP.sh** - Setup Python development environment
-
-### Docs
-- **TROUBLESHOOTING.md** - Solusi untuk common issues, performance tips
-
-## Cara Menggunakan
-
-### Baca Dokumentasi
-```bash
-cat info/TERMUX_BASICS.md
-cat info/USEFUL-COMMANDS.md
-cat docs/TROUBLESHOOTING.md
-```
-
-### Jalankan Script (di Termux)
-```bash
-bash scripts/00-SETUP.sh          # Setup
-bash scripts/01-SYSTEM-INFO.sh    # Cek info
-bash scripts/02-INSTALL-TOOLS.sh  # Install tools
-bash scripts/03-BACKUP.sh         # Backup
-bash scripts/04-PYTHON-SETUP.sh   # Setup Python
-```
-
-## Fitur
-
-✅ Dokumentasi lengkap tentang Termux
-✅ 5+ ready-to-use scripts
-✅ Troubleshooting guide
-✅ Command reference
-✅ Setup automation
-
-## Target Users
-
-- Termux beginners - Dokumentasi lengkap
-- Termux power users - Useful scripts & commands
-- Developers - Development tools setup
-- System administrators - Backup & maintenance scripts
+## Requirements
+- Android SDK 21+ (Android 5.0)
+- Gradle 7.4.2+
+- Termux installed on device
 
 ## Status
-✅ Complete & Ready to Use
+✅ Production Ready
+✅ Fully Functional
+✅ AIDE Compatible
