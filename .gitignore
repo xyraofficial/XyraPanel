@@ -8,3 +8,4 @@ local.properties
 .DS_Store
 .AIDE_SRC/
 .AIDE/
+.env
